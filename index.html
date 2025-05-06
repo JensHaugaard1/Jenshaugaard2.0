@@ -222,13 +222,13 @@
   <div class="timeline-wrapper" id="timelineScroll"></div>
   
   <script>
-    const images = [
-      "./WORK1.png",
-      "./WORK2.png",
-      "./WORK3.png",
-      "./WORK4.png",
-      "./WORK5.png"
-    ];
+  const images = [
+  "https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859"
+];
     
   
     const slideshowImage = document.getElementById("slideshowImage");
@@ -331,22 +331,26 @@
     });
   
     window.addEventListener("touchmove", (e) => {
-      if (!isDragging) return;
-  
-      const now = Date.now();
-      const dx = e.touches[0].clientX - lastX;
-  
-      const timeDiff = now - lastTime;
-      velocity = dx / timeDiff;
-  
-      bgOffset += dx;
-      imageOffset -= dx;
-      timeline.style.backgroundPositionX = `${bgOffset}px`;
-      lastX = e.touches[0].clientX;
-      lastTime = now;
-  
-      updateImage();
-    });
+  if (!isDragging) return;
+
+  const now = Date.now();
+  const dx = e.touches[0].clientX - lastX;
+  const timeDiff = now - lastTime || 1; // prevent division by 0
+  const newVelocity = dx / timeDiff;
+
+  // Smooth velocity by blending with previous value
+  velocity = velocity * 0.7 + newVelocity * 0.3;
+
+  bgOffset += dx;
+  imageOffset -= dx;
+  timeline.style.backgroundPositionX = `${bgOffset}px`;
+  lastX = e.touches[0].clientX;
+  lastTime = now;
+
+  updateImage();
+  handleTick();
+});
+
   
     window.addEventListener("touchend", () => {
       isDragging = false;
