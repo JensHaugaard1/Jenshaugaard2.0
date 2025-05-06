@@ -352,10 +352,26 @@
 });
 
   
-    window.addEventListener("touchend", () => {
-      isDragging = false;
-      setTimeout(() => autoScroll = true, 0);
-    });
+window.addEventListener("touchend", () => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const friction = 0.95;
+  const easingInterval = setInterval(() => {
+    if (Math.abs(velocity) < 0.1) {
+      clearInterval(easingInterval);
+      autoScroll = true;
+      velocity = 0;
+    } else {
+      velocity *= friction;
+      bgOffset += velocity * 10;
+      imageOffset -= velocity * 10;
+      timeline.style.backgroundPositionX = `${bgOffset}px`;
+      updateImage();
+    }
+  }, 16);
+});
+
   
     // Init image
     slideshowImage.src = images[0];
