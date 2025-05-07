@@ -69,13 +69,13 @@
 
     .timeline-wrapper {
       position: absolute;
-      bottom: 5px;
+      bottom: 10px;
       left: 0;
       right: 0;
-      height: 24px;
+      height: 20px;
       background-image: url('Timeline.svg');
       background-repeat: repeat-x;
-      background-size: auto 24px;
+      background-size: auto 20px;
       background-position-x: 0;
       z-index: 2;
       pointer-events: none;
@@ -108,6 +108,7 @@
     @media (max-width: 800px) {
       .hover-underline-animation:after {
         height: .07rem;
+        bottom: -5%;
   }
 }
 
@@ -268,7 +269,7 @@
   
     function animateTimeline() {
       if (autoScroll && !isDragging) {
-        bgOffset -= 1;
+        bgOffset -= 0.75;
         timeline.style.backgroundPositionX = `${bgOffset}px`;
       }
       requestAnimationFrame(animateTimeline);
@@ -281,7 +282,7 @@
         imageOffset += segmentWidth;
         updateImage();
       }
-    }, 750);
+    }, 1000);
   
     // Drag handling
     window.addEventListener("mousedown", (e) => {
@@ -318,22 +319,22 @@
   
       // Easing back to normal speed
       const targetSpeed = segmentWidth;
-      const friction = 0.95;  // Gradual deceleration factor
+      const friction = 0.96;  // Gradual deceleration factor
   
       const easingInterval = setInterval(() => {
-        if (Math.abs(velocity) < 0.1) {
+        if (Math.abs(velocity) < 0.01) {
           clearInterval(easingInterval);  // Stop easing when velocity is small enough
           autoScroll = true;  // Enable normal auto-scrolling
           velocity = 0;  // Reset velocity
         } else {
           // Apply easing: gradually reduce velocity towards the targetSpeed
           velocity *= friction;
-          bgOffset += velocity * 10;  // Apply easing force
+          bgOffset += velocity * 15;  // Apply easing force
           imageOffset -= velocity * 10;
           timeline.style.backgroundPositionX = `${bgOffset}px`;
           updateImage();
         }
-      }, 16); // Update every 16ms (60fps)
+      }, 8); // Update every 16ms (60fps)
     });
   
     window.addEventListener("touchstart", (e) => {
@@ -369,20 +370,22 @@ window.addEventListener("touchend", () => {
   if (!isDragging) return;
   isDragging = false;
 
-  const friction = 0.95;
-  const easingInterval = setInterval(() => {
-    if (Math.abs(velocity) < 0.1) {
-      clearInterval(easingInterval);
-      autoScroll = true;
-      velocity = 0;
-    } else {
-      velocity *= friction;
-      bgOffset += velocity * 10;
-      imageOffset -= velocity * 10;
-      timeline.style.backgroundPositionX = `${bgOffset}px`;
-      updateImage();
-    }
-  }, 16);
+      const friction = 0.96;  // Gradual deceleration factor
+  
+      const easingInterval = setInterval(() => {
+        if (Math.abs(velocity) < 0.01) {
+          clearInterval(easingInterval);  // Stop easing when velocity is small enough
+          autoScroll = true;  // Enable normal auto-scrolling
+          velocity = 0;  // Reset velocity
+        } else {
+          // Apply easing: gradually reduce velocity towards the targetSpeed
+          velocity *= friction;
+          bgOffset += velocity * 15;  // Apply easing force
+          imageOffset -= velocity * 10;
+          timeline.style.backgroundPositionX = `${bgOffset}px`;
+          updateImage();
+        }
+  }, 8);
 });
 
   
