@@ -81,6 +81,14 @@ font-style: normal;
       pointer-events: none;
     }
 
+@media (max-width: 800px) {
+.timeline-wrapper {
+background-size: auto 16px;
+
+}
+
+}
+
     a {
       color: rgb(0, 0, 0);
       text-decoration: none;
@@ -214,8 +222,8 @@ font-style: normal;
   <!-- Fullscreen overlay -->
   <div id="overlay">
     <div class="overlay-content">
-      <p><a href="mailto:hello@jenshaugaard.com" class="hover-underline-animation">hello@jenshaugaard.com</a></p>
-      <p><a href="https://www.instagram.com/jenshaugaaard" target="_blank" class="hover-underline-animation">@jenshaugaaard</a></p>
+      <p><a href="javascript:setTimeout(()=>{window.location = 'mailto:hello@jenshaugaard.com' },750);" class="hover-underline-animation">hello@jenshaugaard.com</a></p>
+      <p><a href="javascript:setTimeout(()=>{window.location = 'https://www.instagram.com/jenshaugaaard' },750);" target="_blank" class="hover-underline-animation">@jenshaugaaard</a></p>
     </div>
   </div>
 
@@ -252,10 +260,10 @@ let isDragging = false;
 let lastX = 0;
 let velocity = 0;
 let lastTime = 0;
-const segmentWidth = 200; // Segment width for scrolling
+const segmentWidth = 120; // Segment width for scrolling
 let currentIndex = -1;
 let autoScroll = true;
-let easing = 0.96; // Easing factor for smoother transition
+let easing = 0.97; // Easing factor for smoother transition
 
 function updateImage() {
   const offset = Math.abs(imageOffset % (segmentWidth * images.length));
