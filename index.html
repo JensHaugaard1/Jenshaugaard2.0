@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>JENS HAUGAARD</title>
   <link rel="icon" type="image/x-icon" href="Assets/Aktiv 3JENS LOGO fav.PNG">
-  <link rel="stylesheet" href="https://use.typekit.net/xee0ygj.css">
+<link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
   <style>
     html, body {
       margin: 0;
@@ -15,67 +15,67 @@
       width: 100%;
       background: #ffffff;
       font-family: "neue-haas-grotesk-display", sans-serif;
-      font-weight: 500;
-      font-style: normal;
+font-weight: 500;
+font-style: normal;
+      font-kerning: auto;
       user-select: none;
     }
 
     .text {
-        position: absolute;
-        top: 30px;
-        left: 16px;
+      position: absolute;
+      top: 30px;
+      left: 16px;
       width: 90vw;
       font-size: 16px;
       line-height: 16px;
       text-align: left;
-      font-kerning: auto;
       z-index: 10;
       color: rgb(0, 0, 0);
       pointer-events: none;
     }
 
     @media (max-width: 800px) {
-  .text {
-    font-size: 14px;
-    line-height: 14px;
-  }
-}
+      .text {
+        font-size: 14px;
+        line-height: 14px;
+      }
+    }
 
     .text a {
       pointer-events: all;
     }
 
     .slideshow-placeholder {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-height: 75vh;
-  max-width: 92vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  pointer-events: none;
-}
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-height: 75vh;
+      max-width: 92vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-.slideshow-placeholder img {
-  max-height: 75vh;
-  max-width: 96vw;
-  height: auto;
-  width: auto;
-  display: block;
-}
+    .slideshow-placeholder img {
+      max-height: 75vh;
+      max-width: 96vw;
+      height: auto;
+      width: auto;
+      display: block;
+    }
 
     .timeline-wrapper {
       position: absolute;
       bottom: 8px;
       left: 0;
       right: 0;
-      height: 20px;
-      background-image: url('Timeline.svg');
+      height: 18px;
+      background-image: url('Timeline3.svg'); /* Changed to Timeline2.svg */
       background-repeat: repeat-x;
-      background-size: auto 20px;
+      background-size: auto 18px;
       background-position-x: 0;
       z-index: 2;
       pointer-events: none;
@@ -105,127 +105,126 @@
       transition: transform 0.4s cubic-bezier(.37,.01,.65,.99);
     }
 
-    @media (max-width: 800px) {
-      .hover-underline-animation:after {
-        height: .07rem;
-        bottom: -5%;
-  }
-}
-
     .hover-underline-animation:hover:after {
       transform: scaleX(1);
       transform-origin: bottom left;
     }
 
+    /* Apply the same underline effect to email and Instagram links */
+    #overlay .hover-underline-animation:after {
+      background-color: white;
+      height: .08rem; /* Change to white for links inside overlay */
+    }
+
+    @media (max-width: 800px) {
+      .hover-underline-animation:after {
+        height: .07rem;
+        bottom: -5%;
+      }
+      #overlay .hover-underline-animation:after {
+        height: .07rem;
+        bottom: -5%;
+      }
+    }
+
     #overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: white;
-  font-family: "neue-haas-grotesk-display", sans-serif;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      font-family: "neue-haas-grotesk-display", sans-serif;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
 
-#overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
+    #overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
 
+    .overlay-content p a {
+      color: white;
+    }
 
-.overlay-content p a {
-  color: white;
-}
+    .overlay-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+      padding: 16px;
+      box-sizing: border-box;
+      font-size: 16px;
+      font-weight: 500;
+    }
 
+    .overlay-content .left {
+      flex: 1;
+      text-align: left;
+      color: white;
+    }
 
+    .overlay-content .center {
+      flex: 2;
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      color: white;
+    }
 
+    .overlay-content .center a {
+      color: white;
+      text-decoration: none;
+    }
 
+    #menuToggle {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 16px;
+      height: 16px;
+      z-index: 100;
+      cursor: pointer;
+      mix-blend-mode: difference;
+      -webkit-user-drag: none;
+      user-select: none;
+      transition: transform 0.4s cubic-bezier(.37,.01,.65,.99);
+    }
 
-.overlay-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
-  font-size: 16px;
-  font-weight: 500;
-}
+    #menuToggle.rotated {
+      transform: rotate(45deg);
+    }
 
-.overlay-content .left {
-  flex: 1;
-  text-align: left;
-  color: white;
-}
-
-.overlay-content .center {
-  flex: 2;
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
-  color: white;
-}
-
-.overlay-content .center a {
-  color: white;
-  text-decoration: none;
-}
-
-
-#menuToggle {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 16px;
-  height: 16px;
-  z-index: 100;
-  cursor: pointer;
-  mix-blend-mode: difference;
-  -webkit-user-drag: none;
-  user-select: none;
-  transition: transform 0.4s cubic-bezier(.37,.01,.65,.99);
-}
-
-#menuToggle.rotated {
-  transform: rotate(45deg);
-}
-
-
-
-   
   </style>
 </head>
 <body>
 
-    <img src="menu.svg" id="menuToggle" alt="menu toggle" />
+  <img src="menu.svg" id="menuToggle" alt="menu toggle" />
 
-<!-- Fullscreen overlay -->
-<div id="overlay">
+  <!-- Fullscreen overlay -->
+  <div id="overlay">
     <div class="overlay-content">
-      <p><a href="mailto:Hello@jenshaugaard.com">Hello@jenshaugaard.com</a></p>
-      <p><a href="https://www.instagram.com/jenshaugaaard" target="_blank">@Jenshaugaaard</a></p>
+      <p><a href="mailto:hello@jenshaugaard.com" class="hover-underline-animation">hello@jenshaugaard.com</a></p>
+      <p><a href="https://www.instagram.com/jenshaugaaard" target="_blank" class="hover-underline-animation">@jenshaugaaard</a></p>
     </div>
   </div>
-  
-
 
   <div class="text">
     <p>
       PHOTOGRAPHER & CREATIVE BASED<br>
       IN COPENHAGEN CURRENTLY AT
       <a href="javascript:setTimeout(()=>{window.location = 'https://www.ducor.dk' },750);" class="hover-underline-animation">DUCOR</a><br>
-      © JENS HAUGAARD
+      ©2025 JENS HAUGAARD
     </p>
   </div>
 
@@ -243,172 +242,159 @@
   "https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583",
   "https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859"
 ];
-    
-  
-    const slideshowImage = document.getElementById("slideshowImage");
-    const timeline = document.getElementById("timelineScroll");
-  
-    let bgOffset = 0;
-    let imageOffset = 0;
-    let isDragging = false;
-    let lastX = 0;
-    let velocity = 0;
-    let lastTime = 0;
-    const segmentWidth = 110;
-    let currentIndex = -1;
-    let autoScroll = true;
-  
-    function updateImage() {
-      const offset = Math.abs(imageOffset % (segmentWidth * images.length));
-      const index = Math.floor(offset / segmentWidth);
-      if (index !== currentIndex) {
-        currentIndex = index;
-        slideshowImage.src = images[index];
-      }
-    }
-  
-    function animateTimeline() {
-      if (autoScroll && !isDragging) {
-        bgOffset -= 0.75;
-        timeline.style.backgroundPositionX = `${bgOffset}px`;
-      }
-      requestAnimationFrame(animateTimeline);
-    }
-  
-    animateTimeline();
-  
-    setInterval(() => {
-      if (autoScroll && !isDragging) {
-        imageOffset += segmentWidth;
-        updateImage();
-      }
-    }, 1000);
-  
-    // Drag handling
-    window.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      autoScroll = false;
-      lastX = e.clientX;
-      lastTime = Date.now();
-      document.body.style.cursor = "grabbing";
-    });
-  
-    window.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-  
-      const now = Date.now();
-      const dx = e.clientX - lastX;
-  
-      // Calculate velocity (distance over time)
-      const timeDiff = now - lastTime;
-      velocity = dx / timeDiff;  // distance divided by time
-  
-      bgOffset += dx;
-      imageOffset -= dx;
+
+const slideshowImage = document.getElementById("slideshowImage");
+const timeline = document.getElementById("timelineScroll");
+
+let bgOffset = 0;
+let imageOffset = 0;
+let isDragging = false;
+let lastX = 0;
+let velocity = 0;
+let lastTime = 0;
+const segmentWidth = 200; // Segment width for scrolling
+let currentIndex = -1;
+let autoScroll = true;
+let easing = 0.96; // Easing factor for smoother transition
+
+function updateImage() {
+  const offset = Math.abs(imageOffset % (segmentWidth * images.length));
+  const index = Math.floor(offset / segmentWidth);
+  if (index !== currentIndex) {
+    currentIndex = index;
+    slideshowImage.src = images[index];
+  }
+}
+
+function animateTimeline() {
+  if (autoScroll && !isDragging) {
+    bgOffset -= 0.7; // Reduced speed for smoother timeline scrolling
+    timeline.style.backgroundPositionX = `${bgOffset}px`;
+  }
+  requestAnimationFrame(animateTimeline);
+}
+
+animateTimeline();
+
+setInterval(() => {
+  if (autoScroll && !isDragging) {
+    imageOffset += segmentWidth;
+    updateImage();
+  }
+}, 1000);  // Adjusted interval for smoother image updates
+
+// Drag handling
+window.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  autoScroll = false;
+  lastX = e.clientX;
+  lastTime = Date.now();
+  document.body.style.cursor = "grabbing";
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+
+  const now = Date.now();
+  const dx = e.clientX - lastX;
+
+  // Calculate velocity (distance over time)
+  const timeDiff = now - lastTime;
+  velocity = dx / timeDiff;  // distance divided by time
+
+  bgOffset += velocity * 12; // Slightly adjusted multiplier for smoother scroll speed
+  imageOffset -= velocity * 12; // Same multiplier for image update
+  timeline.style.backgroundPositionX = `${bgOffset}px`;
+  lastX = e.clientX;
+  lastTime = now;
+
+  updateImage();
+});
+
+window.addEventListener("mouseup", () => {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.cursor = "default";
+
+  // Easing back to normal speed
+  const easingInterval = setInterval(() => {
+    if (Math.abs(velocity) < 0.05) {
+      clearInterval(easingInterval);  // Stop easing when velocity is small enough
+      autoScroll = true;  // Enable normal auto-scrolling
+      velocity = 0;  // Reset velocity
+    } else {
+      // Apply easing: gradually reduce velocity
+      velocity *= easing;  // Apply friction to gradually reduce speed
+      bgOffset += velocity * 15;  // Apply easing force
+      imageOffset -= velocity * 15;
       timeline.style.backgroundPositionX = `${bgOffset}px`;
-      lastX = e.clientX;
-      lastTime = now;
-  
       updateImage();
-    });
-  
-    window.addEventListener("mouseup", () => {
-      if (!isDragging) return;
-      isDragging = false;
-      document.body.style.cursor = "default";
-  
-      // Easing back to normal speed
-      const targetSpeed = segmentWidth;
-      const friction = 0.96;  // Gradual deceleration factor
-  
-      const easingInterval = setInterval(() => {
-        if (Math.abs(velocity) < 0.01) {
-          clearInterval(easingInterval);  // Stop easing when velocity is small enough
-          autoScroll = true;  // Enable normal auto-scrolling
-          velocity = 0;  // Reset velocity
-        } else {
-          // Apply easing: gradually reduce velocity towards the targetSpeed
-          velocity *= friction;
-          bgOffset += velocity * 15;  // Apply easing force
-          imageOffset -= velocity * 10;
-          timeline.style.backgroundPositionX = `${bgOffset}px`;
-          updateImage();
-        }
-      }, 8); // Update every 16ms (60fps)
-    });
-  
-    window.addEventListener("touchstart", (e) => {
-      isDragging = true;
-      autoScroll = false;
-      lastX = e.touches[0].clientX;
-      lastTime = Date.now();
-    });
-  
-    window.addEventListener("touchmove", (e) => {
+    }
+  }, 8); // Update every 8ms for smoother animation
+});
+
+// Touch events for mobile devices
+window.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  autoScroll = false;
+  lastX = e.touches[0].clientX;
+  lastTime = Date.now();
+});
+
+window.addEventListener("touchmove", (e) => {
   if (!isDragging) return;
 
   const now = Date.now();
   const dx = e.touches[0].clientX - lastX;
-  const timeDiff = now - lastTime || 1; // prevent division by 0
-  const newVelocity = dx / timeDiff;
 
-  // Smooth velocity by blending with previous value
-  velocity = velocity * 0.7 + newVelocity * 0.3;
+  const timeDiff = now - lastTime;
+  velocity = dx / timeDiff;
 
-  bgOffset += dx;
-  imageOffset -= dx;
+  bgOffset += velocity * 12;  // Adjusted multiplier for smoother scrolling
+  imageOffset -= velocity * 12;
   timeline.style.backgroundPositionX = `${bgOffset}px`;
   lastX = e.touches[0].clientX;
   lastTime = now;
 
   updateImage();
-  handleTick();
 });
 
-  
 window.addEventListener("touchend", () => {
   if (!isDragging) return;
   isDragging = false;
 
-      const friction = 0.96;  // Gradual deceleration factor
-  
-      const easingInterval = setInterval(() => {
-        if (Math.abs(velocity) < 0.01) {
-          clearInterval(easingInterval);  // Stop easing when velocity is small enough
-          autoScroll = true;  // Enable normal auto-scrolling
-          velocity = 0;  // Reset velocity
-        } else {
-          // Apply easing: gradually reduce velocity towards the targetSpeed
-          velocity *= friction;
-          bgOffset += velocity * 15;  // Apply easing force
-          imageOffset -= velocity * 10;
-          timeline.style.backgroundPositionX = `${bgOffset}px`;
-          updateImage();
-        }
+  // Easing after touch end
+  const easingInterval = setInterval(() => {
+    if (Math.abs(velocity) < 0.05) {
+      clearInterval(easingInterval);  // Stop easing when velocity is small enough
+      autoScroll = true;  // Enable normal auto-scrolling
+      velocity = 0;  // Reset velocity
+    } else {
+      velocity *= easing;
+      bgOffset += velocity * 15;  // Apply easing force
+      imageOffset -= velocity * 15;
+      timeline.style.backgroundPositionX = `${bgOffset}px`;
+      updateImage();
+    }
   }, 8);
 });
 
-  
-    // Init image
-    slideshowImage.src = images[0];
-  
-    // Overlay menu logic (cleaned)
-    const menuIcon = document.getElementById('menuToggle');
-    const overlay = document.getElementById('overlay');
-  
-    let menuOpen = false;
-  
-    menuIcon.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      overlay.classList.toggle('active', menuOpen);
-      menuIcon.classList.toggle('rotated', menuOpen);
-    });
+// Init image
+slideshowImage.src = images[0];
+
+// Overlay menu logic (cleaned)
+const menuIcon = document.getElementById('menuToggle');
+const overlay = document.getElementById('overlay');
+
+let menuOpen = false;
+
+menuIcon.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  overlay.classList.toggle('active', menuOpen);
+  menuIcon.classList.toggle('rotated', menuOpen);
+});
+
   </script>
-  
-  
-  
-  
-  
 
 </body>
 </html>
