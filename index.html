@@ -67,6 +67,12 @@ font-style: normal;
       display: block;
     }
 
+     @media (max-width: 800px) {
+      .slideshow-placeholder {
+        top: 52%;
+      }
+    }
+
     .timeline-wrapper {
       position: absolute;
       bottom: 8px;
@@ -176,6 +182,13 @@ bottom: 4px;
       font-size: 16px;
       font-weight: 500;
     }
+  @media (max-width: 800px) {
+    .overlay-content {
+       font-size: 14px;
+        line-height: 14px;
+    }
+  }
+    
 
     .overlay-content .left {
       flex: 1;
@@ -214,9 +227,69 @@ bottom: 4px;
       transform: rotate(45deg);
     }
 
+  /* Preloader overlay styles */
+#preloader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 255, 255);  /* White overlay */
+  z-index: 1000;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 1500ms cubic-bezier(0.42, 0, 0.58, 1); /* Fade out earlier */
+   
+}
+
+/* Preloader icon styles */
+#preloader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+    mix-blend-mode: difference;
+  
+}
+
+/* Ensure SVG is black */
+#preloader-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(1); /* Makes the SVG black */
+  animation: rotatePreloader 1750ms cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+/* Rotation animation */
+@keyframes rotatePreloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+#preloader-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 1000ms cubic-bezier(0.42, 0, 0.58, 1); /* Fade out over 1500ms */
+}
+
+
   </style>
 </head>
 <body>
+
+
+<!-- Preloader with Overlay -->
+<div id="preloader-overlay">
+  <div id="preloader">
+    <img src="menu.svg" alt="Preloader Icon" id="preloader-icon" />
+  </div>
+</div>
+
+
 
   <img src="menu.svg" id="menuToggle" alt="menu toggle" />
 
@@ -287,7 +360,7 @@ function updateImage() {
 // Timeline animation function
 function animateTimeline() {
   if (autoScroll && !isDragging) {
-    bgOffset -= 0.6; // Reduced speed for smoother timeline scrolling
+    bgOffset -= 0.5; // Reduced speed for smoother timeline scrolling
     timeline.style.backgroundPositionX = `${bgOffset}px`;
   }
   requestAnimationFrame(animateTimeline);
@@ -423,6 +496,18 @@ menuIcon.addEventListener('click', () => {
   overlay.classList.toggle('active', menuOpen);
   menuIcon.classList.toggle('rotated', menuOpen);
 });
+
+// Select the preloader overlay
+const preloaderOverlay = document.getElementById('preloader-overlay');
+
+// Set a timeout to trigger the fade-out effect before the rotation completes
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    // Trigger the fade-out by adding the class
+    preloaderOverlay.classList.add('fade-out');
+  }, 1000); // Delay the fade-out by 1500ms (before rotation finishes)
+});
+
   </script>
 
 </body>
