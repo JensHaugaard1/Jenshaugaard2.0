@@ -84,6 +84,7 @@ font-style: normal;
 @media (max-width: 800px) {
 .timeline-wrapper {
 background-size: auto 16px;
+bottom: 4px;
 
 }
 
@@ -243,7 +244,7 @@ background-size: auto 16px;
   <div class="timeline-wrapper" id="timelineScroll"></div>
   
   <script>
-  const images = [
+ const images = [
   "https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951",
   "https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372",
   "https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316",
@@ -260,11 +261,12 @@ let isDragging = false;
 let lastX = 0;
 let velocity = 0;
 let lastTime = 0;
-const segmentWidth = 120; // Segment width for scrolling
+const segmentWidth = 100; // Segment width for scrolling
 let currentIndex = -1;
 let autoScroll = true;
-let easing = 0.97; // Easing factor for smoother transition
+let easing = 0.95; // Slightly higher easing for smoother transition
 
+// Function to update image based on current offset
 function updateImage() {
   const offset = Math.abs(imageOffset % (segmentWidth * images.length));
   const index = Math.floor(offset / segmentWidth);
@@ -274,9 +276,10 @@ function updateImage() {
   }
 }
 
+// Timeline animation function
 function animateTimeline() {
   if (autoScroll && !isDragging) {
-    bgOffset -= 0.7; // Reduced speed for smoother timeline scrolling
+    bgOffset -= 0.6; // Reduced speed for smoother timeline scrolling
     timeline.style.backgroundPositionX = `${bgOffset}px`;
   }
   requestAnimationFrame(animateTimeline);
@@ -284,6 +287,7 @@ function animateTimeline() {
 
 animateTimeline();
 
+// Regular interval for auto-scrolling images
 setInterval(() => {
   if (autoScroll && !isDragging) {
     imageOffset += segmentWidth;
@@ -310,7 +314,7 @@ window.addEventListener("mousemove", (e) => {
   const timeDiff = now - lastTime;
   velocity = dx / timeDiff;  // distance divided by time
 
-  bgOffset += velocity * 12; // Slightly adjusted multiplier for smoother scroll speed
+  bgOffset += velocity * 12; // Adjusted multiplier for smoother scroll speed
   imageOffset -= velocity * 12; // Same multiplier for image update
   timeline.style.backgroundPositionX = `${bgOffset}px`;
   lastX = e.clientX;
@@ -324,21 +328,24 @@ window.addEventListener("mouseup", () => {
   isDragging = false;
   document.body.style.cursor = "default";
 
-  // Easing back to normal speed
+  // Easing back to normal speed after mouse release
   const easingInterval = setInterval(() => {
-    if (Math.abs(velocity) < 0.05) {
+    if (Math.abs(velocity) < 0.1) {  // Set threshold to stop easing when velocity is small enough
       clearInterval(easingInterval);  // Stop easing when velocity is small enough
       autoScroll = true;  // Enable normal auto-scrolling
       velocity = 0;  // Reset velocity
     } else {
       // Apply easing: gradually reduce velocity
-      velocity *= easing;  // Apply friction to gradually reduce speed
-      bgOffset += velocity * 15;  // Apply easing force
-      imageOffset -= velocity * 15;
-      timeline.style.backgroundPositionX = `${bgOffset}px`;
+      velocity *= easing;  // Slow down the rate of easing
+      bgOffset += velocity * 12;  // Apply easing force
+      imageOffset -= velocity * 12;
+
+      // Ensure the image updates smoothly
       updateImage();
+
+      timeline.style.backgroundPositionX = `${bgOffset}px`;
     }
-  }, 8); // Update every 8ms for smoother animation
+  }, 16); // Adjusted interval for smoother easing
 });
 
 // Touch events for mobile devices
@@ -373,18 +380,21 @@ window.addEventListener("touchend", () => {
 
   // Easing after touch end
   const easingInterval = setInterval(() => {
-    if (Math.abs(velocity) < 0.05) {
+    if (Math.abs(velocity) < 0.1) {  // Set threshold to stop easing when velocity is small enough
       clearInterval(easingInterval);  // Stop easing when velocity is small enough
       autoScroll = true;  // Enable normal auto-scrolling
       velocity = 0;  // Reset velocity
     } else {
-      velocity *= easing;
-      bgOffset += velocity * 15;  // Apply easing force
-      imageOffset -= velocity * 15;
-      timeline.style.backgroundPositionX = `${bgOffset}px`;
+      velocity *= easing;  // Slow down the rate of easing
+      bgOffset += velocity * 12;  // Apply easing force
+      imageOffset -= velocity * 12;
+
+      // Ensure the image updates smoothly
       updateImage();
+
+      timeline.style.backgroundPositionX = `${bgOffset}px`;
     }
-  }, 8);
+  }, 16); // Adjusted interval for smoother easing
 });
 
 // Init image
