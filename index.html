@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>JENS HAUGAARD</title>
-  <link rel="icon" type="image/x-icon" href="Assets/Aktiv 3JENS LOGO fav.PNG">
+  <link rel="icon" type="image/x-icon" href="/menu.svg">
 <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
   <style>
     html, body {
@@ -115,7 +115,7 @@ bottom: 4px;
       position: absolute;
       width: 100%;
       transform: scaleX(0);
-      height: .07rem;
+      height: .1rem;
       bottom: -7%;
       left: 0;
       background-color: rgb(0, 0, 0);
@@ -275,10 +275,13 @@ bottom: 4px;
 /* Rotation animation */
 @keyframes rotatePreloader {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(0deg) scale(25%);
   }
+20%{
+  transform: rotate(0deg) scale(100%);
+}
   100% {
-    transform: rotate(180deg);
+    transform: rotate(180deg) scale(100%);
   }
 }
 
@@ -333,7 +336,16 @@ bottom: 4px;
   "https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372",
   "https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316",
   "https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583",
-  "https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859"
+  "https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK7.PNG?updatedAt=1746988570168",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK8.png?updatedAt=1746988565327",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK11.png?updatedAt=1746988567431",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415",
+
 ];
 
 const slideshowImage = document.getElementById("slideshowImage");
