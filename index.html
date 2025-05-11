@@ -277,7 +277,7 @@ bottom: 4px;
   0% {
     transform: rotate(0deg) scale(25%);
   }
-20%{
+25%{
   transform: rotate(0deg) scale(100%);
 }
   100% {
@@ -367,13 +367,13 @@ let lastTime = 0;
 let currentIndex = -1;
 let autoScroll = true;
 let easing = 0.96; // Easing factor for smoother transition
-let maxSpeed = 3; // Set a maximum speed for image change
+let maxSpeed = 5; // Set a maximum speed for image change
 let segmentWidth = 150; // Default segment width
 
 // Check the window width and adjust the segment width accordingly
 function updateSegmentWidth() {
   if (window.innerWidth < 800) {
-    segmentWidth = 80; // Set smaller segment width for screens under 800px
+    segmentWidth = 65; // Set smaller segment width for screens under 800px
   } else {
     segmentWidth = 175; // Default segment width for larger screens
   }
