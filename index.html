@@ -51,7 +51,7 @@ font-style: normal;
       left: 50%;
       transform: translate(-50%, -50%);
       max-height: 75vh;
-      max-width: 92vw;
+      max-width: 0vw;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -264,7 +264,7 @@ let lastTime = 0;
 const segmentWidth = 100; // Segment width for scrolling
 let currentIndex = -1;
 let autoScroll = true;
-let easing = 0.95; // Slightly higher easing for smoother transition
+let easing = 0.96; // Easing factor for smoother transition
 
 // Function to update image based on current offset
 function updateImage() {
@@ -295,7 +295,7 @@ setInterval(() => {
   }
 }, 1000);  // Adjusted interval for smoother image updates
 
-// Drag handling
+// Mouse events for dragging
 window.addEventListener("mousedown", (e) => {
   isDragging = true;
   autoScroll = false;
@@ -339,11 +339,8 @@ window.addEventListener("mouseup", () => {
       velocity *= easing;  // Slow down the rate of easing
       bgOffset += velocity * 12;  // Apply easing force
       imageOffset -= velocity * 12;
-
-      // Ensure the image updates smoothly
-      updateImage();
-
       timeline.style.backgroundPositionX = `${bgOffset}px`;
+      updateImage();
     }
   }, 16); // Adjusted interval for smoother easing
 });
@@ -388,11 +385,8 @@ window.addEventListener("touchend", () => {
       velocity *= easing;  // Slow down the rate of easing
       bgOffset += velocity * 12;  // Apply easing force
       imageOffset -= velocity * 12;
-
-      // Ensure the image updates smoothly
-      updateImage();
-
       timeline.style.backgroundPositionX = `${bgOffset}px`;
+      updateImage();
     }
   }, 16); // Adjusted interval for smoother easing
 });
