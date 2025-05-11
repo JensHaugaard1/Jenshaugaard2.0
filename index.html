@@ -261,6 +261,14 @@ bottom: 4px;
   animation: rotatePreloader 1750ms cubic-bezier(0.42, 0, 0.58, 1) forwards;
 }
 
+ @media (max-width: 800px) {
+    #preloader-icon {
+  width: 16px;
+  height: 16px;
+  }
+  }
+
+
 /* Rotation animation */
 @keyframes rotatePreloader {
   0% {
@@ -341,11 +349,25 @@ let isDragging = false;
 let lastX = 0;
 let velocity = 0;
 let lastTime = 0;
-const segmentWidth = 100; // Segment width for scrolling
 let currentIndex = -1;
 let autoScroll = true;
 let easing = 0.96; // Easing factor for smoother transition
 let maxSpeed = 3; // Set a maximum speed for image change
+let segmentWidth = 150; // Default segment width
+
+// Check the window width and adjust the segment width accordingly
+function updateSegmentWidth() {
+  if (window.innerWidth < 800) {
+    segmentWidth = 75; // Set smaller segment width for screens under 800px
+  } else {
+    segmentWidth = 150; // Default segment width for larger screens
+  }
+}
+
+// Update the segment width on page load and window resize
+updateSegmentWidth();
+window.addEventListener('resize', updateSegmentWidth);  // Adjust when the window is resized
+
 
 // Function to update image based on current offset
 function updateImage() {
