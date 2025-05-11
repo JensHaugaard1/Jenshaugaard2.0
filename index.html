@@ -224,7 +224,7 @@ bottom: 4px;
   <div id="overlay">
     <div class="overlay-content">
       <p><a href="javascript:setTimeout(()=>{window.location = 'mailto:hello@jenshaugaard.com' },750);" class="hover-underline-animation">hello@jenshaugaard.com</a></p>
-      <p><a href="javascript:setTimeout(()=>{window.location = 'https://www.instagram.com/jenshaugaaard' },750);" target="_blank" class="hover-underline-animation">@jenshaugaaard</a></p>
+      <p><a href="javascript:setTimeout(()=>{window.location = 'https://www.instagram.com/jenshaugaaard' },750);" class="hover-underline-animation">@jenshaugaaard</a></p>
     </div>
   </div>
 
@@ -255,6 +255,13 @@ bottom: 4px;
 const slideshowImage = document.getElementById("slideshowImage");
 const timeline = document.getElementById("timelineScroll");
 
+// Preload all images
+const preloadImages = images.map((src) => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
 let bgOffset = 0;
 let imageOffset = 0;
 let isDragging = false;
@@ -265,6 +272,7 @@ const segmentWidth = 100; // Segment width for scrolling
 let currentIndex = -1;
 let autoScroll = true;
 let easing = 0.96; // Easing factor for smoother transition
+let maxSpeed = 3; // Set a maximum speed for image change
 
 // Function to update image based on current offset
 function updateImage() {
@@ -314,6 +322,11 @@ window.addEventListener("mousemove", (e) => {
   const timeDiff = now - lastTime;
   velocity = dx / timeDiff;  // distance divided by time
 
+  // Apply maximum speed limit to velocity
+  if (Math.abs(velocity) > maxSpeed) {
+    velocity = Math.sign(velocity) * maxSpeed;
+  }
+
   bgOffset += velocity * 12; // Adjusted multiplier for smoother scroll speed
   imageOffset -= velocity * 12; // Same multiplier for image update
   timeline.style.backgroundPositionX = `${bgOffset}px`;
@@ -362,6 +375,11 @@ window.addEventListener("touchmove", (e) => {
   const timeDiff = now - lastTime;
   velocity = dx / timeDiff;
 
+  // Apply maximum speed limit to velocity
+  if (Math.abs(velocity) > maxSpeed) {
+    velocity = Math.sign(velocity) * maxSpeed;
+  }
+
   bgOffset += velocity * 12;  // Adjusted multiplier for smoother scrolling
   imageOffset -= velocity * 12;
   timeline.style.backgroundPositionX = `${bgOffset}px`;
@@ -405,7 +423,6 @@ menuIcon.addEventListener('click', () => {
   overlay.classList.toggle('active', menuOpen);
   menuIcon.classList.toggle('rotated', menuOpen);
 });
-
   </script>
 
 </body>
