@@ -32,12 +32,14 @@ font-style: normal;
       z-index: 10;
       color: rgb(0, 0, 0);
       pointer-events: none;
+      transition: ease all .2s;
     }
 
     @media (max-width: 800px) {
       .text {
         font-size: 14px;
         line-height: 14px;
+        transition: ease all .2s;
       }
     }
 
@@ -57,6 +59,7 @@ font-style: normal;
       justify-content: center;
       z-index: 1;
       pointer-events: none;
+      transition: ease all .2s;
     }
 
     .slideshow-placeholder img {
@@ -70,6 +73,7 @@ font-style: normal;
      @media (max-width: 800px) {
       .slideshow-placeholder {
         top: 52%;
+        transition: ease all .2s;
       }
     }
 
@@ -85,13 +89,14 @@ font-style: normal;
       background-position-x: 0;
       z-index: 2;
       pointer-events: none;
+      transition: ease all .2s;
     }
 
 @media (max-width: 800px) {
 .timeline-wrapper {
 background-size: auto 16px;
 bottom: 4px;
-
+transition: ease all .2s;
 }
 
 }
@@ -112,7 +117,7 @@ bottom: 4px;
       position: absolute;
       width: 100%;
       transform: scaleX(0);
-      height: .1rem;
+      height: .07rem;
       bottom: -7%;
       left: 0;
       background-color: rgb(0, 0, 0);
@@ -379,10 +384,25 @@ function updateImage() {
   }
 }
 
+let timelineSpeed = 0.5; // Default speed for larger screens
+
+// Function to update timeline speed based on screen size
+function updateTimelineSpeed() {
+  if (window.innerWidth < 800) {
+    timelineSpeed = 0.7; // Slow down the timeline speed on smaller screens
+  } else {
+    timelineSpeed = 0.5; // Default speed for larger screens
+  }
+}
+
+// Call the function to set the speed when the page loads and on resize
+updateTimelineSpeed();
+window.addEventListener('resize', updateTimelineSpeed); // Update speed on window resize
+
 // Timeline animation function
 function animateTimeline() {
   if (autoScroll && !isDragging) {
-    bgOffset -= 0.5; // Reduced speed for smoother timeline scrolling
+    bgOffset -= timelineSpeed; // Use the dynamically updated speed
     timeline.style.backgroundPositionX = `${bgOffset}px`;
   }
   requestAnimationFrame(animateTimeline);
