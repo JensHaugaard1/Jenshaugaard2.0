@@ -343,8 +343,11 @@ bottom: 4px;
   "https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337",
   "https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926",
   "https://ik.imagekit.io/ou0fyxmmi/WORK11.png?updatedAt=1746988567431",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK16.JPG?updatedAt=1749794012884",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK17.JPEG?updatedAt=1749794010883",
   "https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466",
   "https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415",
+  "https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782",
 
 ];
 
@@ -368,7 +371,7 @@ let currentIndex = -1;
 let autoScroll = true;
 let easing = 0.96; // Easing factor for smoother transition
 let maxSpeed = 5; // Set a maximum speed for image change
-let segmentWidth = 150; // Default segment width
+let segmentWidth = 175; // Default segment width
 
 // Check the window width and adjust the segment width accordingly
 function updateSegmentWidth() {
@@ -394,14 +397,14 @@ function updateImage() {
   }
 }
 
-let timelineSpeed = 0.5; // Default speed for larger screens
+let timelineSpeed = 0.4; // Default speed for larger screens
 
 // Function to update timeline speed based on screen size
 function updateTimelineSpeed() {
   if (window.innerWidth < 800) {
-    timelineSpeed = 0.7; // Slow down the timeline speed on smaller screens
+    timelineSpeed = 0.3; // Slow down the timeline speed on smaller screens
   } else {
-    timelineSpeed = 0.5; // Default speed for larger screens
+    timelineSpeed = 0.4; // Default speed for larger screens
   }
 }
 
@@ -426,7 +429,7 @@ setInterval(() => {
     imageOffset += segmentWidth;
     updateImage();
   }
-}, 1000);  // Adjusted interval for smoother image updates
+}, 1500);  // Adjusted interval for smoother image updates
 
 // Mouse events for dragging
 window.addEventListener("mousedown", (e) => {
