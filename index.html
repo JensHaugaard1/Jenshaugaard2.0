@@ -602,6 +602,8 @@
 menuIcon.addEventListener('click', toggleMenu);
 menuHit .addEventListener('click', toggleMenu);
 
+
+
       
     }
   })();
@@ -612,6 +614,57 @@ menuHit .addEventListener('click', toggleMenu);
   const block = (e)=>{ if(!document.body.classList.contains('menu-open')) e.preventDefault(); };
   window.addEventListener('touchmove', block, {passive:false});
   window.addEventListener('wheel', block, {passive:false});
+})();
+(function () {
+  var menuIcon = document.getElementById('menuToggle');
+  var menuHit  = document.getElementById('menuHit');   // optional enlarged hit area
+  var railWrap = document.querySelector('.rail-wrap');
+
+  if (!menuIcon || !railWrap) return;
+
+  // Hide rail immediately on press to prevent the brief flash
+  function hideRailInstant(e) {
+    // Do NOT preventDefault so the click still fires and opens/closes the menu
+    e.stopPropagation(); // blocks global drag-start under the press
+    try { if (window.hideTimer) { clearTimeout(window.hideTimer); window.hideTimer = null; } } catch(_) {}
+    railWrap.classList.add('is-hidden');
+  }
+
+  // Bind on "press" (runs before click)
+  ['pointerdown','touchstart','mousedown'].forEach(function(t){
+    menuIcon.addEventListener(t, hideRailInstant, { passive: true });
+    if (menuHit) menuHit.addEventListener(t, hideRailInstant, { passive: true });
+  });
+})();
+(function () {
+  // If page is restored from bfcache (Safari/Firefox), reload once
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      // short delay avoids potential race with bfcache restore
+      setTimeout(function(){ window.location.reload(); }, 50);
+    }
+  }, { passive: true });
+
+  // Remember if we left/hidden the page
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      sessionStorage.setItem('wasHidden', '1');
+    } else if (document.visibilityState === 'visible') {
+      if (sessionStorage.getItem('wasHidden') === '1') {
+        sessionStorage.removeItem('wasHidden');
+        // Delay a tick to let the browser settle UI before reloading
+        setTimeout(function(){ window.location.reload(); }, 50);
+      }
+    }
+  }, { passive: true });
+
+  // Optional: catch window focus (some Android WebViews)
+  window.addEventListener('focus', function () {
+    if (sessionStorage.getItem('wasHidden') === '1') {
+      sessionStorage.removeItem('wasHidden');
+      setTimeout(function(){ window.location.reload(); }, 50);
+    }
+  }, { passive: true });
 })();
   </script>
   
