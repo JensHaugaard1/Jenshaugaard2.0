@@ -67,7 +67,7 @@
     width: 100%;
     /* max-width: 1400px; */
     height: 100%;
-    padding: 24px;
+    padding: 20px;
     box-sizing: border-box;
     display: grid
 ;
@@ -77,11 +77,11 @@
     font-size: 14px;
     font-weight: 500;
 }
-  @media (max-width:800px){ .overlay-content{ grid-template-columns: 1fr 1fr 1fr; text-align:left; font-size:12px; line-height:1.2; } }
+  @media (max-width:800px){ .overlay-content{ grid-template-columns: 1fr 1fr 1fr; text-align:left; font-size:11px; line-height:1.2; } }
   #overlay .overlay-content a, #overlay .overlay-bottom a{ color:#fff; text-decoration:none; background-image: linear-gradient(currentColor,currentColor); background-size: 0% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .35s cubic-bezier(.37,.01,.65,.99); }
   #overlay.active .overlay-content a:hover, #overlay.active .overlay-bottom a:hover, #overlay.active .overlay-content a:focus-visible, #overlay.active .overlay-bottom a:focus-visible{ background-size: 100% 1px; outline: none; }
-  .overlay-bottom{ position:absolute; left:24px; right:24px; bottom:16px; line-height:1.2; opacity:.9; }
-  @media (max-width:800px){ .overlay-bottom{ font-size:12px; } }
+  .overlay-bottom{ position:absolute; left:20px; right:24px; bottom:16px; line-height:1.2; opacity:.95; }
+  @media (max-width:800px){ .overlay-bottom{ font-size:11px; } }
 
   /* Preloader */
   #preloader-overlay{ position:fixed; inset:0; width:100%; height:100svh; background:#fff; z-index:1000; opacity:1; pointer-events:none; transition: opacity 1000ms cubic-bezier(0.42,0,0.58,1); }
@@ -184,7 +184,7 @@
     if(images && images.length){
       heroA.src = images[0].src;
       heroA.classList.add('show');
-      caption.textContent = `1 / ${images.length}  –  ${images[0].title || ''}`;
+      caption.textContent = `1 / ${images.length} — ${images[0].title || ''}`;
     }
 
     // ===== BUILD SETS =====
@@ -265,7 +265,7 @@
         frontIsA = !frontIsA;
       });
 
-      caption.textContent = `${i+1} / ${images.length}  –  ${item.title || ''}`;
+      caption.textContent = `${i+1} / ${images.length} — ${item.title || ''}`;
 
       // Prefetch neighbors (cached so we don't thrash GC)
       const n1 = images[(i+1)%images.length];
@@ -512,8 +512,20 @@
           try{ scheduleHide(5000); }catch(e){}
         }
       });
+      // Block drag start so the rail doesn't flash when tapping the menu icon
+      const _stopAllMenu = (e)=>{ e.preventDefault(); e.stopPropagation(); };
+      menuIcon.addEventListener('pointerdown', _stopAllMenu, {passive:false});
+      menuIcon.addEventListener('mousedown', _stopAllMenu, {passive:false});
+      menuIcon.addEventListener('touchstart', _stopAllMenu, {passive:false});
     }
   })();
+
+// Disable vertical page scrolling (especially on mobile rubber-banding)
+(function(){
+  const block = (e)=>{ if(!document.body.classList.contains('menu-open')) e.preventDefault(); };
+  window.addEventListener('touchmove', block, {passive:false});
+  window.addEventListener('wheel', block, {passive:false});
+})();
   </script>
 </body>
 </html>
