@@ -1,185 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>JENS HAUGAARD</title>
   <link rel="icon" type="image/x-icon" href="/FAVICON.png">
-  <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css"><style>
+  <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
+  <style>
     :root{
-      --thumb-w: 70px;      /* width of each 4x5 frame */
-      --thumb-w-sm: 56px;   /* mobile */
-      --hero-h: 80svh;      /* max height for hero */
-      --speed: 0.045;       /* px per ms for auto glide */
-      --gap: 0;             /* no gaps between thumbs */
+      --thumb-w: 70px;
+      --thumb-w-sm: 56px;
+      --hero-h: 80svh;
+      --speed: 0.045;     /* px per ms for auto glide */
+      --gap: 0;
     }
 
-    html, body { margin: 0; padding: 0; height: 100svh; overflow: hidden; background:#fff; color:#000; font-family:"neue-haas-grotesk-display", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+    html, body{
+      margin:0; padding:0; height:100svh; overflow:hidden;
+      background:#fff; color:#000;
+      font-family:"neue-haas-grotesk-display", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      user-select:none; -webkit-user-select:none; -ms-user-select:none;
+    }
 
     /* HERO (big image behind the strip) */
-    .hero-wrap{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 1; pointer-events: none; }
-    .hero-layer{ max-height: var(--hero-h); max-width: 100%; width: auto; height: auto; object-fit: contain; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0; will-change: opacity; contain: paint; }
-    .hero-layer.show{ opacity: 1; transform: translate(-50%, -50%) translateZ(0); }
+    .hero-wrap{ position:fixed; inset:0; display:grid; place-items:center; z-index:1; pointer-events:none; }
+    .hero-layer{
+      max-height:var(--hero-h); max-width:100%;
+      width:auto; height:auto; object-fit:contain;
+      position:absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%); opacity:0; will-change:opacity; contain:paint;
+    }
+    .hero-layer.show{ opacity:1; transform:translate(-50%,-50%) translateZ(0); }
 
     /* THUMB STRIP */
-    .rail-wrap{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 5; opacity: 1; transition: opacity .5s ease; will-change: opacity; }
-    .rail-wrap.is-hidden{ opacity: 0; }
-    .rail-wrap.fast{ transition-duration: .3s; }
-    .rail{ position: relative; display: flex; align-items: center; gap: var(--gap); width: 100vw; overflow: hidden; cursor: grab; touch-action: none; }
-    body.dragging{ cursor: grabbing; }
-    * { -webkit-tap-highlight-color: transparent; }
-    img, .thumb { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; }
-    .rail.dragging{ cursor: grabbing; }
+    .rail-wrap{ position:fixed; inset:0; display:grid; place-items:center; z-index:5; opacity:1; transition:opacity .5s ease; will-change:opacity; }
+    .rail-wrap.is-hidden{ opacity:0; }
+    .rail-wrap.fast{ transition-duration:.3s; }
+    .rail{ position:relative; display:flex; align-items:center; gap:var(--gap); width:100vw; overflow:hidden; cursor:grab; touch-action:none; }
+    body.dragging, .rail.dragging{ cursor:grabbing; }
 
-    .track{ display: flex; gap: 0; will-change: transform; transform: translateZ(0); backface-visibility: hidden; }
-    .set{ display: flex; gap: 0; }
+    *{ -webkit-tap-highlight-color:transparent; }
+    img, .thumb{ -webkit-user-drag:none; user-drag:none; -webkit-touch-callout:none; }
 
-    .thumb{ flex: 0 0 auto; width: var(--thumb-w); aspect-ratio: 4 / 5; position: relative; overflow: hidden; border: none; margin: 0; padding: 0; background: #000; }
-    .thumb img{ width: 100%; height: 100%; object-fit: cover; display: block; backface-visibility: hidden; transform: translateZ(0); }
+    .track{ display:flex; gap:0; will-change:transform; transform:translateZ(0); backface-visibility:hidden; }
+    .set{ display:flex; gap:0; }
 
-    /* No active border per request */
-    .thumb.is-active{}
-
-    /* Caption (keep image text) */
-    .caption{ position: fixed; inset: auto 0 14px 0; text-align: center; font-size: 12px; letter-spacing: .01em; z-index: 6; user-select: none; }
-
-    @media (max-width: 800px){
-      :root{ --thumb-w: var(--thumb-w-sm); --hero-h: 80svh; }
-      .caption{ font-size: 12px; inset-block-end: 8px; }
-      .hero-layer{ width: 100%; height: 80svh; max-width: 100%; max-height: 80svh; }
+    .thumb{
+      flex:0 0 auto; width:var(--thumb-w); aspect-ratio:4/5;
+      position:relative; overflow:hidden; border:0; margin:0; padding:0; background:#000;
     }
-  
-  /* ===== Overlay menu + preloader (from original) ===== */
-  .text{ position:absolute; top:30px; left:16px; width:90vw; font-size:16px; line-height:16px; text-align:left; z-index:10; color:#000; pointer-events:none; }
-  .text a{ pointer-events:all; color:#000; text-decoration:none; }
-  @media (max-width:800px){ .text{ font-size:14px; line-height:14px; } }
+    .thumb img{ width:100%; height:100%; object-fit:cover; display:block; backface-visibility:hidden; transform:translateZ(0); }
 
-/* Keep your existing positioning/sizing */
-#menuToggle{
-  position:absolute;
-  top:24px;
-  left:24px;
-  width:20px;
-  height:20px;
-  z-index:110;                 /* keep it above the carousel */
-  cursor:pointer;
-  mix-blend-mode:difference;
-  -webkit-user-drag:none;
-  user-select:none;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-  transition: transform .4s cubic-bezier(.37,.01,.65,.99);
-  display:block;               /* important for iOS hit-testing */
-  pointer-events:auto;         /* ensure it receives taps */
-}
+    .caption{
+      position:fixed; inset:auto 0 14px 0; text-align:center;
+      font-size:12px; letter-spacing:.01em; z-index:6; user-select:none;
+    }
 
-/* CSS-only “hit area” using a pseudo element */
-#menuToggle::before{
-  content:"";
-  position:absolute;
-  /* expand the hit box by 20px on each side (=> ~60×60 target) */
-  top:-20px; right:-20px; bottom:-20px; left:-20px;
+    @media (max-width:800px){
+      :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; }
+      .caption{ font-size:12px; inset-block-end:8px; }
+      .hero-layer{ width:100%; height:80svh; max-width:100%; max-height:80svh; }
+    }
 
-  /* Force the pseudo-element to participate in hit testing on mobile */
-  background: linear-gradient(transparent,transparent);
-  pointer-events:auto;         /* this makes the larger area clickable */
-}
+    /* ===== Overlay / Menu / Preloader ===== */
+    #menuToggle{
+      position:absolute; top:24px; left:24px; width:20px; height:20px;
+      z-index:110; cursor:pointer; mix-blend-mode:difference;
+      -webkit-user-drag:none; user-select:none; touch-action:manipulation;
+      transition:transform .4s cubic-bezier(.37,.01,.65,.99);
+      display:block; pointer-events:auto;
+    }
+    #menuToggle::before{
+      content:""; position:absolute; top:-24px; right:-24px; bottom:-24px; left:-24px;
+      background:linear-gradient(transparent,transparent); pointer-events:auto;
+    }
+    #menuToggle.rotated{ transform:rotate(45deg); }
 
-/* Your rotation stays the same */
-#menuToggle.rotated{ transform: rotate(45deg); }
+    /* Optional separate hit-area (kept for robustness across browsers) */
+    #menuHit{
+      position:absolute; top:24px; left:24px; width:56px; height:56px;
+      transform:translate(-18px,-18px); background:transparent; border:0; padding:0; margin:0;
+      cursor:pointer; z-index:111; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
 
-/* Optional: slightly larger on mobile */
-@media (max-width: 800px){
-  #menuToggle::before{ top:-24px; right:-24px; bottom:-24px; left:-24px; }
-}
+    #overlay{
+      position:fixed; inset:0; height:100svh; background:rgba(0,0,0,.9);
+      backdrop-filter:blur(10px); z-index:99; display:flex; align-items:center; justify-content:center;
+      color:#fff; font-family:"neue-haas-grotesk-display", sans-serif;
+      opacity:0; pointer-events:none; transition:opacity .4s ease;
+    }
+    #overlay.active{ opacity:1; pointer-events:all; }
+    body.menu-open .rail-wrap{ opacity:0 !important; pointer-events:none; }
+    body.menu-open .caption{ opacity:0; }
 
-/* your existing #menuToggle stays as-is */
+    .overlay-content{
+      position:absolute; width:100%; height:100%; padding:20px; box-sizing:border-box;
+      display:grid; grid-template-columns:1fr 1fr 2fr; align-items:center; gap:24px;
+      font-size:14px; font-weight:500;
+    }
+    @media (max-width:800px){
+      .overlay-content{ grid-template-columns:1fr 1fr 1fr; text-align:left; font-size:12px; line-height:1.2; }
+    }
+    #overlay .overlay-content a, #overlay .overlay-bottom a{
+      color:#fff; text-decoration:none; background-image:linear-gradient(currentColor,currentColor);
+      background-size:0% 1px; background-position:0 100%; background-repeat:no-repeat;
+      transition:background-size .35s cubic-bezier(.37,.01,.65,.99);
+    }
+    #overlay.active .overlay-content a:hover,
+    #overlay.active .overlay-bottom a:hover,
+    #overlay.active .overlay-content a:focus-visible,
+    #overlay.active .overlay-bottom a:focus-visible{ background-size:100% 1px; outline:none; }
 
-/* Larger hit area (doesn't change visuals) */
-#menuHit{
-  position: absolute;
-  /* center the 56×56 hotspot on your 24/24 icon position */
-  top: 24px; 
-  left: 24px;
-  width: 56px;
-  height: 56px;
-  transform: translate(-18px, -18px); /* (56-20)/2 = 18, centers around 20×20 icon */
-  background: transparent;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
+    .overlay-bottom{ position:absolute; left:20px; right:24px; bottom:16px; line-height:1.2; opacity:.95; }
+    @media (max-width:800px){ .overlay-bottom{ font-size:12px; } }
 
-  /* IMPORTANT: keep hotspot BELOW the icon so the icon remains clickable */
-  z-index: 111;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-
-
-
-  
-  #overlay{ position:fixed; inset:0; height:100svh; background:rgba(0,0,0,.9); backdrop-filter: blur(10px); z-index:99; display:flex; align-items:center; justify-content:center; color:#fff; font-family:"neue-haas-grotesk-display", sans-serif; opacity:0; pointer-events:none; transition: opacity .4s ease; }
-  #overlay.active{ opacity:1; pointer-events:all; }
-  /* When menu is open, hide carousel & caption and block interactions */
-  body.menu-open .rail-wrap{ opacity:0 !important; pointer-events:none; }
-  body.menu-open .caption{ opacity:0; }
-  .overlay-content {
-    position: absolute;
-    width: 100%;
-    /* max-width: 1400px; */
-    height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-    display: grid
-;
-    grid-template-columns: 1fr 1fr 2fr;
-    align-items: center;
-    gap: 24px;
-    font-size: 14px;
-    font-weight: 500;
-}
-  @media (max-width:800px){ .overlay-content{ grid-template-columns: 1fr 1fr 1fr; text-align:left; font-size:12px; line-height:1.2; } }
-  #overlay .overlay-content a, #overlay .overlay-bottom a{ color:#fff; text-decoration:none; background-image: linear-gradient(currentColor,currentColor); background-size: 0% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .35s cubic-bezier(.37,.01,.65,.99); }
-  #overlay.active .overlay-content a:hover, #overlay.active .overlay-bottom a:hover, #overlay.active .overlay-content a:focus-visible, #overlay.active .overlay-bottom a:focus-visible{ background-size: 100% 1px; outline: none; }
-  .overlay-bottom{ position:absolute; left:20px; right:24px; bottom:16px; line-height:1.2; opacity:.95; }
-  @media (max-width:800px){ .overlay-bottom{ font-size:12px; } }
-
-  /* Preloader */
-  #preloader-overlay{ position:fixed; inset:0; width:100%; height:100svh; background:#fff; z-index:1000; opacity:1; pointer-events:none; transition: opacity 1000ms cubic-bezier(0.42,0,0.58,1); }
-  #preloader{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2000; mix-blend-mode:difference; }
-  #preloader-icon{ width:20px; height:20px; filter: brightness(0) saturate(100%) invert(1); animation: rotatePreloader 1750ms cubic-bezier(0.42,0,0.58,1) forwards; }
-  @media (max-width:800px){ #preloader-icon{ width:16px; height:16px; } }
-  @keyframes rotatePreloader{ 0%{ transform: rotate(0deg) scale(25%);} 30%{ transform: rotate(0deg) scale(110%);} 100%{ transform: rotate(180deg) scale(110%);} }
-  #preloader-overlay.fade-out{ opacity:0; }
+    /* Preloader */
+    #preloader-overlay{
+      position:fixed; inset:0; width:100%; height:100svh; background:#fff; z-index:1000;
+      opacity:1; pointer-events:none; transition:opacity 1000ms cubic-bezier(.42,0,.58,1);
+    }
+    #preloader{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2000; mix-blend-mode:difference; }
+    #preloader-icon{ width:20px; height:20px; filter:brightness(0) saturate(100%) invert(1); animation:rotatePreloader 1750ms cubic-bezier(.42,0,.58,1) forwards; }
+    @media (max-width:800px){ #preloader-icon{ width:16px; height:16px; } }
+    @keyframes rotatePreloader{
+      0%{ transform:rotate(0deg) scale(25%); }
+      30%{ transform:rotate(0deg) scale(110%); }
+      100%{ transform:rotate(180deg) scale(110%); }
+    }
+    #preloader-overlay.fade-out{ opacity:0; }
   </style>
-  
 </head>
 <body>
-  <!-- Preloader with Overlay -->
-  <div id="preloader-overlay"><div id="preloader"><img src="menu.svg" alt="Preloader Icon" id="preloader-icon" /></div></div>
-  <img src="menu.svg" id="menuToggle" alt="menu toggle" />
+  <!-- Preloader -->
+  <div id="preloader-overlay">
+    <div id="preloader"><img src="menu.svg" alt="Preloader Icon" id="preloader-icon"/></div>
+  </div>
+
+  <!-- Menu toggle (icon + optional enlarged hit area) -->
+  <img src="menu.svg" id="menuToggle" alt="Open menu">
   <button id="menuHit" aria-label="Open menu"></button>
-  <div id="overlay">
+
+  <!-- Overlay -->
+  <div id="overlay" aria-hidden="true">
     <div class="overlay-content">
-      <p style="text-align:left"><a href="javascript:setTimeout(()=>{window.location='https://www.instagram.com/jenshaugaaard'},750);">@jenshaugaaard</a></p>
-      <p style="text-align:center"><a href="javascript:setTimeout(()=>{window.location='mailto:hello@jenshaugaard.com'},750);">hello@jenshaugaard.com</a></p>
+      <p style="text-align:left"><a href="https://www.instagram.com/jenshaugaaard">@jenshaugaaard</a></p>
+      <p style="text-align:center"><a href="mailto:hello@jenshaugaard.com">hello@jenshaugaard.com</a></p>
       <p style="text-align:right">+45 53 64 84 44</p>
       <div class="overlay-bottom">
         <p>PHOTOGRAPHER AND MULTIDISCIPLINARY<br>
         CREATIVE EXPLORING VISUAL MEDIUMS.<br>
-        BASED IN COPENHAGEN. CURRENTLY AT <a href="javascript:setTimeout(()=>{window.location='https://www.ducor.dk'},750);">DUCOR</a><br>
+        BASED IN COPENHAGEN. CURRENTLY AT <a href="https://www.ducor.dk">DUCOR</a><br>
         ©2025 JENS HAUGAARD</p>
       </div>
     </div>
   </div>
 
+  <!-- Hero -->
   <div class="hero-wrap">
-    <img class="hero-layer show" id="heroA" alt="Current image layer A" />
-    <img class="hero-layer" id="heroB" alt="Current image layer B" />
+    <img class="hero-layer show" id="heroA" alt="Current image layer A">
+    <img class="hero-layer" id="heroB" alt="Current image layer B">
   </div>
 
+  <!-- Carousel -->
   <div class="rail-wrap">
     <div class="rail" id="rail" aria-label="Work carousel">
       <div class="track" id="track"></div>
@@ -188,29 +170,31 @@
 
   <div class="caption" id="caption" aria-live="polite">&nbsp;</div>
 
-
-
   <script>
-    // ===== DATA =====
-    // Switched to a mutable array and optional external JSON load.
+  (()=>{
+    "use strict";
+
+    /* =========================
+       DATA
+    ========================= */
     let images = [
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title: "Brand Identity"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title: "Maecor Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316", title: "Lamin, SKYLL Artwork Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583", title: "Artigeardit, Længe Leve Artwork Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title: "Ducor Webdesign"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457", title: "Maecor Webdesign + Development"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK_4C2A8077%20(1).jpg?updatedAt=1750228600988", title: "Lamin Press Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK7.PNG?updatedAt=1746988570168", title: "Lostboys Edit + Graphics"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK8.png?updatedAt=1746988565327", title: "Artigeardit & Lamin, NHVEH Artwork Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337", title: "Lamin, SKYLL Billboard Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926", title: "RTW Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK11.png?updatedAt=1746988567431", title: "Maecor Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK16.JPG?updatedAt=1749794012884", title: "Noah Carter, Guld & Grønne Artwork Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK17.JPEG?updatedAt=1749794010883", title: "Campaign Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466", title: "Campaign Graphics"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415", title: "Campaign Photography"},
-      {src: "https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782", title: "Kundo, 24 Artwork Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title:"Brand Identity"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title:"Maecor Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316", title:"Lamin, SKYLL Artwork Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583", title:"Artigeardit, Længe Leve Artwork Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Webdesign"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457", title:"Maecor Webdesign + Development"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK_4C2A8077%20(1).jpg?updatedAt=1750228600988", title:"Lamin Press Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK7.PNG?updatedAt=1746988570168", title:"Lostboys Edit + Graphics"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK8.png?updatedAt=1746988565327", title:"Artigeardit & Lamin, NHVEH Artwork Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337", title:"Lamin, SKYLL Billboard Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926", title:"RTW Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK11.png?updatedAt=1746988567431", title:"Maecor Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK16.JPG?updatedAt=1749794012884", title:"Noah Carter, Guld & Grønne Artwork Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK17.JPEG?updatedAt=1749794010883", title:"Campaign Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466", title:"Campaign Graphics"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415", title:"Campaign Photography"},
+      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782", title:"Kundo, 24 Artwork Photography"},
     ];
 
     async function loadImagesFromJSON(){
@@ -220,65 +204,89 @@
           const data = await r.json();
           if(Array.isArray(data) && data.every(o=>o && o.src)) images = data;
         }
-      }catch(e){}
+      }catch(_){}
     }
-    // ===== THUMBNAIL HELPERS (low‑res generation) =====
+
+    /* =========================
+       HELPERS
+    ========================= */
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const $ = (sel, root=document)=> root.querySelector(sel);
+
     function makeThumbUrl(src, width){
       try{
         const u = new URL(src);
         const tr = `tr=w-${Math.max(40, Math.round(width))},q-35`;
-        if(u.search && u.search.length>1){ u.search += `&${tr}`; } else { u.search = `?${tr}`; }
+        u.search = u.search ? (u.search + `&${tr}`) : (`?${tr}`);
         return u.toString();
-      }catch(e){ return src; }
+      }catch(_){ return src; }
     }
     function currentThumbCssWidth(){
       const cs = getComputedStyle(document.documentElement);
       return parseFloat(cs.getPropertyValue('--thumb-w')) || 70;
     }
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-    // ===== ELEMENTS =====
-    const rail = document.getElementById('rail');
-    const railWrap = document.querySelector('.rail-wrap');
-    const track = document.getElementById('track');
-    const heroA = document.getElementById('heroA');
-    const heroB = document.getElementById('heroB');
+    /* =========================
+       DOM REFS
+    ========================= */
+    const rail      = $('#rail');
+    const railWrap  = $('.rail-wrap');
+    const track     = $('#track');
+    const heroA     = $('#heroA');
+    const heroB     = $('#heroB');
+    const caption   = $('#caption');
+    const menuIcon  = $('#menuToggle');
+    const menuHit   = $('#menuHit');
+    const overlay   = $('#overlay');
+    const pre       = $('#preloader-overlay');
+
+    /* =========================
+       INITIAL HERO
+    ========================= */
     let frontIsA = true;
-    const caption = document.getElementById('caption');
-    const prefetched = new Set();
-
-    // Set initial hero to avoid empty/broken image before first update
     if(images && images.length){
       heroA.src = images[0].src;
       heroA.classList.add('show');
       caption.textContent = `1 / ${images.length} — ${images[0].title || ''}`;
     }
 
-    // ===== BUILD SETS =====
+    /* =========================
+       BUILD STRIP
+    ========================= */
     function buildSet(){
       const set = document.createElement('div');
       set.className = 'set';
+      const w = currentThumbCssWidth() * DPR;
       images.forEach((it, idx)=>{
         const b = document.createElement('div');
         b.className = 'thumb';
         b.setAttribute('role','option');
         b.setAttribute('aria-label', it.title || `Image ${idx+1}`);
-        b.dataset.index = idx; // original index
+        b.dataset.index = idx;
+
         const img = new Image();
         img.decoding = 'async';
-        img.loading = 'eager'; // prevent lazy + opacity=0 from skipping loads
+        img.loading = 'eager';
         img.draggable = false;
         img.fetchPriority = 'low';
-        const w = currentThumbCssWidth() * DPR;
-        img.src = makeThumbUrl(it.src, w);
-        img.srcset = `${makeThumbUrl(it.src, w)} 1x, ${makeThumbUrl(it.src, w*2)} 2x`;
+        const url1 = makeThumbUrl(it.src, w);
+        const url2 = makeThumbUrl(it.src, w*2);
+        img.src = url1;
+        img.srcset = `${url1} 1x, ${url2} 2x`;
+
         b.appendChild(img);
         set.appendChild(b);
       });
       return set;
     }
 
-    let firstSet, secondSet, thirdSet;
+    let firstSet, secondSet, thirdSet, setWidth = 0;
+    function measure(){
+      const fallback = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70) * images.length;
+      setWidth = fallback;
+      const w = firstSet.getBoundingClientRect().width;
+      if(w > 0) setWidth = w;
+    }
     function buildAllSets(){
       track.innerHTML = '';
       firstSet = buildSet();
@@ -290,22 +298,16 @@
       updateHero(computeActiveIndex());
     }
 
-    // ===== MEASURE =====
-    let setWidth = 0;
-    function measure(){
-      const cs = getComputedStyle(document.documentElement);
-      const thumbW = parseFloat(cs.getPropertyValue('--thumb-w')) || 70;
-      setWidth = images.length * thumbW; // fallback
-      const domWidth = firstSet.getBoundingClientRect().width;
-      if(domWidth > 0) setWidth = domWidth;
-    }
-
-    // ===== HERO SYNC =====
+    /* =========================
+       HERO SYNC
+    ========================= */
     let activeIndex = -1;
+    const prefetched = new Set();
+
     function computeActiveIndex(){
-      const w = (setWidth / images.length) || parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70;
-      const s = (innerWidth/2 - tx) / w - 0.5; // continuous index along strip
-      const idx = ((Math.round(s) % images.length) + images.length) % images.length; // wrap 0..N-1
+      const w = (setWidth / images.length) || (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70);
+      const s = (innerWidth/2 - tx) / w - 0.5;
+      const idx = ((Math.round(s) % images.length) + images.length) % images.length;
       return idx;
     }
 
@@ -318,13 +320,11 @@
       const front = frontIsA ? heroA : heroB;
       const back  = frontIsA ? heroB : heroA;
 
-      // Preload next image into the back layer
-      const pre = new Image();
-      pre.decoding = 'async';
-      pre.src = item.src;
-      try{ if(pre.decode) await pre.decode(); }catch(e){}
+      const preImg = new Image();
+      preImg.decoding = 'async';
+      preImg.src = item.src;
+      try{ if(preImg.decode) await preImg.decode(); }catch(_){}
 
-      // Crossfade on next frame to avoid layout thrash
       requestAnimationFrame(()=>{
         back.src = item.src;
         back.classList.add('show');
@@ -334,34 +334,39 @@
 
       caption.textContent = `${i+1} / ${images.length} — ${item.title || ''}`;
 
-      // Prefetch neighbors (cached so we don't thrash GC)
       const n1 = images[(i+1)%images.length];
       const p1 = images[(i-1+images.length)%images.length];
-      [n1, p1].forEach(it=>{ if(!it) return; if(!prefetched.has(it.src)){ const img=new Image(); img.decoding='async'; img.src=it.src; prefetched.add(it.src); }});
+      [n1, p1].forEach(it=>{
+        if(it && !prefetched.has(it.src)){
+          const img=new Image(); img.decoding='async'; img.src=it.src; prefetched.add(it.src);
+        }
+      });
     }
 
-    // ===== AUTOPLAY + DRAG/INERTIA (transform-based) =====
+    /* =========================
+       AUTOPLAY + DRAG/INERTIA
+    ========================= */
     let lastTime = 0;
-    let tx = 0;                              // current translateX in px
+    let tx = 0;
     const AUTO_SPEED = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--speed')) || 0.045; // px/ms
-    const AUTO_DIR = -1;                      // visual flow to the LEFT
+    const AUTO_DIR = -1;
 
-    // Drag + motion state
     let isDragging = false;
-    let uiLocked = false; // true when menu overlay is open
+    let uiLocked = false;
     let inertial = false;
-    let lastPX = 0;                          // last pointer X
-    let vel = AUTO_SPEED * AUTO_DIR;         // px/ms (signed)
+    let lastPX = 0;
+    let vel = AUTO_SPEED * AUTO_DIR;
     let lastMoveTS = 0;
     let lastHeroCheck = 0;
     let lastHeroRendered = -1;
-    let dtSmooth = 16.7; // ms, low-pass filtered frame delta (init slightly rounded)
+    let dtSmooth = 16.7;
     let idxStableSince = 0;
     let currentIdx = -1;
-    let heroIdleInterval = 650; // ms between hero updates when idle (reduce main-thread churn)
-    let heroActiveInterval = 80; // ms when dragging/coasting
+    const heroIdleInterval = 650;
+    const heroActiveInterval = 80;
 
-    const PIXEL_QUANT = (window.devicePixelRatio && window.devicePixelRatio >= 2) ? 0.5 : 1; // snap to device pixel grid on Retina
+    const PIXEL_QUANT = (window.devicePixelRatio && window.devicePixelRatio >= 2) ? 0.5 : 1;
+
     function applyTransform(){
       const snapped = Math.round(tx/PIXEL_QUANT)*PIXEL_QUANT;
       track.style.transform = `translate3d(${snapped}px,0,0)`;
@@ -372,67 +377,54 @@
       const parts = m.match(/matrix\(([^)]+)\)/) || m.match(/matrix3d\(([^)]+)\)/);
       if(!parts) return 0;
       const nums = parts[1].split(',').map(parseFloat);
-      return (nums.length===6? nums[4]: nums[12]) || 0;
+      return (nums.length===6 ? nums[4] : nums[12]) || 0;
     }
-
     function wrapTx(){
       if(setWidth <= 0) return;
-      // keep tx within [-setWidth, 0]
       if(tx > 0){ tx -= setWidth * Math.ceil(tx / setWidth); }
       if(tx < -setWidth){ tx += setWidth * Math.ceil((-tx) / setWidth); }
     }
 
-    // Pointer drag handlers (drag from ANYWHERE on the page)
+    // Reveal/hide rail on idle
+    let hideTimer = null;
     function showRailFast(){
       railWrap.classList.add('fast');
       railWrap.classList.remove('is-hidden');
       setTimeout(()=> railWrap.classList.remove('fast'), 350);
     }
-    let hideTimer = null;
     function scheduleHide(ms){
-      if(document.body.classList.contains('menu-open')) return; // don't hide while menu is open
+      if(document.body.classList.contains('menu-open')) return;
       if(hideTimer) clearTimeout(hideTimer);
       hideTimer = setTimeout(()=>{ railWrap.classList.add('is-hidden'); }, ms);
     }
 
+    // Pointer handlers
     function startDrag(e){
       if(uiLocked) { e?.preventDefault?.(); return; }
       if(e.isPrimary === false) return;
-      // Pause CSS idle animation and sync JS state to current transform
       tx = getComputedTx();
       showRailFast();
-
       document.body.classList.add('dragging');
-      isDragging = true;
-      inertial = false;
+      isDragging = true; inertial = false;
       lastPX = e.clientX; lastMoveTS = performance.now();
       if(hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
       e.preventDefault();
     }
-
     function moveDrag(e){
-      if(uiLocked) return;
-      if(!isDragging) return;
+      if(uiLocked || !isDragging) return;
       const now = performance.now();
       const dx = e.clientX - lastPX;
-      tx += dx;                               // follow finger/mouse
-      wrapTx();
-      applyTransform();
+      tx += dx; wrapTx(); applyTransform();
       const dt = now - lastMoveTS;
-      if(dt > 0){ vel = dx / dt; }
+      if(dt > 0) vel = dx / dt;
       lastPX = e.clientX; lastMoveTS = now;
       e.preventDefault();
     }
-
     function endDrag(e){
-      if(uiLocked) return;
-      if(!isDragging) return;
-      isDragging = false;
-      inertial = true;                        // start coasting with current vel
-      lastTime = performance.now();
+      if(uiLocked || !isDragging) return;
+      isDragging = false; inertial = true; lastTime = performance.now();
       document.body.classList.remove('dragging');
       if(e) e.preventDefault();
-      // hide the carousel strip after 5s of idle
       scheduleHide(5000);
     }
 
@@ -442,7 +434,6 @@
     document.addEventListener('pointercancel', endDrag, {passive:false});
     document.addEventListener('pointerleave', endDrag, {passive:false});
 
-    // Hover to reveal + idle hide after hover ends (only when over the carousel, not full page)
     rail.addEventListener('mouseenter', ()=>{
       railWrap.classList.remove('is-hidden');
       if(hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
@@ -454,35 +445,26 @@
     function step(ts){
       const now = ts || performance.now();
       if(lastTime === 0) lastTime = now;
-      // smooth dt to reduce tiny rAF jitter at low speeds
-      const rawDt = now - lastTime; // ms
-      dtSmooth = dtSmooth * 0.95 + rawDt * 0.05; // stronger smoothing for Chrome/mac jitter
+      const rawDt = now - lastTime;
+      dtSmooth = dtSmooth * 0.95 + rawDt * 0.05;
       const dt = dtSmooth;
 
       if(isDragging){
-        // live position already applied in pointermove
+        // position updated in moveDrag
       } else if(inertial){
         const target = AUTO_SPEED * AUTO_DIR;
-        const alpha = 1 - Math.exp(-dt/700); // ~0.7s time-constant
+        const alpha = 1 - Math.exp(-dt/700);
         vel += (target - vel) * alpha;
-        tx += vel * dt;
-        wrapTx();
-        applyTransform();
-        if(Math.abs(vel - target) < 0.0008){
-          inertial = false; vel = target;
-        }
+        tx += vel * dt; wrapTx(); applyTransform();
+        if(Math.abs(vel - target) < 0.0008){ inertial = false; vel = target; }
       } else {
-        // steady autoplay (JS-driven)
         vel = AUTO_SPEED * AUTO_DIR;
-        tx += vel * dt;
-        wrapTx();
-        applyTransform();
+        tx += vel * dt; wrapTx(); applyTransform();
       }
 
-      // Determine active index and update hero based on speed
       const idx = computeActiveIndex();
-      const w = (setWidth / images.length) || parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70;
-      const fastThreshold = w / 250; // px/ms (≈ one thumb every 250ms)
+      const w = (setWidth / images.length) || (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70);
+      const fastThreshold = w / 250;
       const isFast = Math.abs(vel) > fastThreshold;
 
       if(idx !== currentIdx){ currentIdx = idx; idxStableSince = now; }
@@ -506,7 +488,87 @@
       requestAnimationFrame(step);
     }
 
-    // ===== INIT + TESTS =====
+    /* =========================
+       MENU + PRELOADER
+    ========================= */
+    function hidePreloader(){
+      if(!pre || pre.dataset.hidden) return;
+      pre.classList.add('fade-out');
+      pre.dataset.hidden = "1";
+      setTimeout(()=>{ pre.style.display='none'; }, 1200);
+    }
+    window.addEventListener('load', ()=> setTimeout(hidePreloader, 600));
+    document.addEventListener('DOMContentLoaded', ()=> setTimeout(hidePreloader, 1800));
+    setTimeout(hidePreloader, 4000);
+
+    function setMenuState(open){
+      overlay.classList.toggle('active', open);
+      document.body.classList.toggle('menu-open', open);
+      menuIcon.classList.toggle('rotated', open);
+      uiLocked = !!open;
+      if(open){
+        try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
+        railWrap.classList.add('is-hidden');
+      }else{
+        scheduleHide(5000);
+      }
+      overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+
+    function toggleMenu(e){
+      e?.stopPropagation?.();
+      e?.preventDefault?.();
+      const open = !overlay.classList.contains('active');
+      setMenuState(open);
+    }
+
+    // Bind menu interactions (icon + enlarged hit area)
+    ['click'].forEach(evt=>{
+      menuIcon.addEventListener(evt, toggleMenu, {passive:false});
+      menuHit.addEventListener(evt, toggleMenu, {passive:false});
+    });
+
+    // Prevent carousel drag kick-in when pressing menu
+    const blockPress = (e)=>{ e.preventDefault(); e.stopPropagation(); };
+    ['pointerdown','mousedown','touchstart'].forEach(evt=>{
+      menuIcon.addEventListener(evt, blockPress, {passive:false});
+      menuHit.addEventListener(evt, blockPress, {passive:false});
+    });
+
+    // Hide rail instantly on press to avoid brief flash before overlay
+    const hideRailInstant = (e)=>{
+      e.stopPropagation();
+      try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
+      railWrap.classList.add('is-hidden');
+    };
+    ['pointerdown','touchstart','mousedown'].forEach(evt=>{
+      menuIcon.addEventListener(evt, hideRailInstant, {passive:true});
+      menuHit .addEventListener(evt, hideRailInstant, {passive:true});
+    });
+
+    // Disable vertical page scrolling (when menu closed)
+    const scrollBlock = (e)=>{ if(!document.body.classList.contains('menu-open')) e.preventDefault(); };
+    window.addEventListener('touchmove', scrollBlock, {passive:false});
+    window.addEventListener('wheel', scrollBlock, {passive:false});
+
+    // BFCache / visibility reload safeguards
+    window.addEventListener('pageshow', (e)=>{ if(e.persisted) setTimeout(()=>location.reload(), 50); }, {passive:true});
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'hidden'){
+        sessionStorage.setItem('wasHidden','1');
+      } else if (document.visibilityState === 'visible' && sessionStorage.getItem('wasHidden') === '1'){
+        sessionStorage.removeItem('wasHidden'); setTimeout(()=>location.reload(), 50);
+      }
+    }, {passive:true});
+    window.addEventListener('focus', ()=>{
+      if(sessionStorage.getItem('wasHidden') === '1'){
+        sessionStorage.removeItem('wasHidden'); setTimeout(()=>location.reload(), 50);
+      }
+    }, {passive:true});
+
+    /* =========================
+       BOOT
+    ========================= */
     function selfTest(){
       console.groupCollapsed('carousel self-test');
       console.assert(images.length > 0, 'images array is empty');
@@ -521,14 +583,10 @@
       }, 1200);
     }
 
-    // Boot: load JSON, build sets, start loops
     window.addEventListener('load', async ()=>{
       await loadImagesFromJSON();
       buildAllSets();
-
-      tx = 0;
-      applyTransform();
-      updateHero(computeActiveIndex());
+      tx = 0; applyTransform(); updateHero(computeActiveIndex());
       requestAnimationFrame(step);
       selfTest();
       scheduleHide(5000);
@@ -542,131 +600,7 @@
         updateHero(computeActiveIndex());
       }
     });
-  // ===== MENU OVERLAY + PRELOADER HOOKS =====
-  (function(){
-
-    function toggleMenu(ev){
-  ev?.stopPropagation?.();
-  ev?.preventDefault?.();
-  const open = !overlay.classList.contains('active');
-  overlay.classList.toggle('active', open);
-  document.body.classList.toggle('menu-open', open);
-  // keep your rotation CSS working
-  menuIcon.classList.toggle('rotated', open);
-  // your existing rail/drag lock code here…
-}
-    const menuIcon = document.getElementById('menuToggle');
-    const overlay = document.getElementById('overlay');
-    const pre = document.getElementById('preloader-overlay');
-    let preHidden = false;
-    function hidePreloader(){
-      if(!pre || preHidden) return;
-      pre.classList.add('fade-out');
-      preHidden = true;
-      // remove from flow after transition
-      setTimeout(()=>{ try{ pre.style.display='none'; }catch(e){} }, 1200);
-    }
-
-    // Multiple guards so it always goes away
-    window.addEventListener('load', ()=> setTimeout(hidePreloader, 600));
-    document.addEventListener('DOMContentLoaded', ()=> setTimeout(hidePreloader, 1800));
-    setTimeout(hidePreloader, 4000); // ultimate failsafe
-
-    // Menu overlay logic
-    if(menuIcon && overlay){
-      let open = false;
-      menuIcon.addEventListener('click', (ev)=>{
-        ev.stopPropagation();
-        open = !open;
-        overlay.classList.toggle('active', open);
-        menuIcon.classList.toggle('rotated', open);
-        document.body.classList.toggle('menu-open', open);
-        uiLocked = !!open; // defined in carousel script
-        if(open){
-          // keep the rail hidden and cancel hide timer
-          try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(e){}
-          try{ railWrap.classList.add('is-hidden'); }catch(e){}
-        } else {
-          try{ scheduleHide(5000); }catch(e){}
-        }
-      });
-      // Block drag start so the rail doesn't flash when tapping the menu icon
-      const _stopAllMenu = (e)=>{ e.preventDefault(); e.stopPropagation(); };
-      menuIcon.addEventListener('pointerdown', _stopAllMenu, {passive:false});
-      menuIcon.addEventListener('mousedown', _stopAllMenu, {passive:false});
-      menuIcon.addEventListener('touchstart', _stopAllMenu, {passive:false});
-
-
-
-
-menuIcon.addEventListener('click', toggleMenu);
-menuHit .addEventListener('click', toggleMenu);
-
-
-
-      
-    }
   })();
-  
-
-// Disable vertical page scrolling (especially on mobile rubber-banding)
-(function(){
-  const block = (e)=>{ if(!document.body.classList.contains('menu-open')) e.preventDefault(); };
-  window.addEventListener('touchmove', block, {passive:false});
-  window.addEventListener('wheel', block, {passive:false});
-})();
-(function () {
-  var menuIcon = document.getElementById('menuToggle');
-  var menuHit  = document.getElementById('menuHit');   // optional enlarged hit area
-  var railWrap = document.querySelector('.rail-wrap');
-
-  if (!menuIcon || !railWrap) return;
-
-  // Hide rail immediately on press to prevent the brief flash
-  function hideRailInstant(e) {
-    // Do NOT preventDefault so the click still fires and opens/closes the menu
-    e.stopPropagation(); // blocks global drag-start under the press
-    try { if (window.hideTimer) { clearTimeout(window.hideTimer); window.hideTimer = null; } } catch(_) {}
-    railWrap.classList.add('is-hidden');
-  }
-
-  // Bind on "press" (runs before click)
-  ['pointerdown','touchstart','mousedown'].forEach(function(t){
-    menuIcon.addEventListener(t, hideRailInstant, { passive: true });
-    if (menuHit) menuHit.addEventListener(t, hideRailInstant, { passive: true });
-  });
-})();
-(function () {
-  // If page is restored from bfcache (Safari/Firefox), reload once
-  window.addEventListener('pageshow', function (e) {
-    if (e.persisted) {
-      // short delay avoids potential race with bfcache restore
-      setTimeout(function(){ window.location.reload(); }, 50);
-    }
-  }, { passive: true });
-
-  // Remember if we left/hidden the page
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') {
-      sessionStorage.setItem('wasHidden', '1');
-    } else if (document.visibilityState === 'visible') {
-      if (sessionStorage.getItem('wasHidden') === '1') {
-        sessionStorage.removeItem('wasHidden');
-        // Delay a tick to let the browser settle UI before reloading
-        setTimeout(function(){ window.location.reload(); }, 50);
-      }
-    }
-  }, { passive: true });
-
-  // Optional: catch window focus (some Android WebViews)
-  window.addEventListener('focus', function () {
-    if (sessionStorage.getItem('wasHidden') === '1') {
-      sessionStorage.removeItem('wasHidden');
-      setTimeout(function(){ window.location.reload(); }, 50);
-    }
-  }, { passive: true });
-})();
   </script>
-  
 </body>
 </html>
