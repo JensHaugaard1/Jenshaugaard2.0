@@ -211,13 +211,14 @@ body.menu-open #menuLabel::after { content: 'close'; }
        DATA
     ========================= */
     let images = [
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title:"Ducor Brand Identity"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title:"Maecor Photography"},
+    
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316", title:"Lamin, SKYLL Artwork Photography"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Webdesign"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK_4C2A8077%20(1).jpg?updatedAt=1750228600988", title:"Lamin Press Photography"},
+            {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Webdesign"},
        {src:"https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466", title:"Campaign Graphics"},
+          {src:"https://ik.imagekit.io/ou0fyxmmi/QURATEExSNKRS_JULY1926.jpg?updatedAt=1760568963291", title:"Quratee x Nike SNKRS Campaign"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK7.PNG?updatedAt=1746988570168", title:"Lostboys Edit + Graphics"},
+       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782", title:"Kundo, 24 Artwork Photography"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK8.png?updatedAt=1746988565327", title:"Artigeardit & Lamin, NHVEH Artwork Photography"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337", title:"Lamin, SKYLL Billboard Photography"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926", title:"RTW Campaign Photography"},
@@ -226,15 +227,11 @@ body.menu-open #menuLabel::after { content: 'close'; }
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK17.JPEG?updatedAt=1749794010883", title:"Campaign Photography"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/FOREVERLAST_21_070255_LOWRES.jpg?updatedAt=1760568551971", title:"Foreverlast Lookbook Photography"},
         {src:"https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583", title:"Artigeardit, Længe Leve Artwork Photography"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/QURATEExSNKRS_JULY1926.jpg?updatedAt=1760568963291", title:"Quratee x Nike SNKRS Campaign"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415", title:"Campaign Photography"},
        {src:"https://ik.imagekit.io/ou0fyxmmi/000027610007_HIGHRES.jpg?updatedAt=1760568443958", title:"Maecor Capsule03"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782", title:"Kundo, 24 Artwork Photography"},
        {src:"https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457", title:"Maecor Webdesign + Development"},
        {src:"https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title:"Brand Identity"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title:"Maecor Photography"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316", title:"Lamin, SKYLL Artwork Photography"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583", title:"Artigeardit, Længe Leve Artwork Photography"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Webdesign"},
     ];
 
@@ -480,7 +477,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
       if(hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
     });
     rail.addEventListener('mouseleave', ()=>{
-      if(!isDragging) scheduleHide(5000);
+      if(!isDragging) scheduleHide(4000);
     });
 
     function step(ts){
