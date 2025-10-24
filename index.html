@@ -232,7 +232,6 @@ body.menu-open #menuLabel::after { content: 'close'; }
        {src:"https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457", title:"Maecor Webdesign + Development"},
        {src:"https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title:"Brand Identity"},
       {src:"https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title:"Maecor Photography"},
-      {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Webdesign"},
     ];
 
     async function loadImagesFromJSON(){
@@ -463,7 +462,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
       isDragging = false; inertial = true; lastTime = performance.now();
       document.body.classList.remove('dragging');
       if(e) e.preventDefault();
-      scheduleHide(5000);
+      scheduleHide(1000);
     }
 
     document.addEventListener('pointerdown', startDrag, {passive:false});
@@ -477,7 +476,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
       if(hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
     });
     rail.addEventListener('mouseleave', ()=>{
-      if(!isDragging) scheduleHide(4000);
+      if(!isDragging) scheduleHide(1000);
     });
 
     function step(ts){
