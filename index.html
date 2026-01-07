@@ -456,14 +456,17 @@ const needed = Math.max(7, Math.ceil(innerWidth / setWidth) + SAFETY_SETS);
 
   // Start on the middle set
   midSet = Math.floor(needed / 2);
-  tx = -setWidth * midSet;
+  
 
   // Safe band: allow drifting 1 full set left/right from mid
   maxTx = -setWidth * (midSet - 1);
   minTx = -setWidth * (midSet + 1);
 
-  applyTransform();
-  updateHero(computeActiveIndex());
+  // Start exactly on image 1 (index 0)
+centerOnIndex(0);
+
+updateHero(0);
+
 }
 
 
@@ -482,6 +485,22 @@ const needed = Math.max(7, Math.ceil(innerWidth / setWidth) + SAFETY_SETS);
       const idx = ((Math.round(s) % images.length) + images.length) % images.length;
       return idx;
     }
+
+    const START_OFFSET_PX = 44; // try -2, -4, +2 etc.
+
+function centerOnIndex(i){
+  const thumbW =
+    (setWidth / images.length) ||
+    (parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--thumb-w')) || 70);
+
+  tx = -(i * thumbW) + innerWidth/2 - thumbW/2 + START_OFFSET_PX;
+
+  wrapTx();
+  applyTransform();
+}
+
+
 
     async function updateHero(i){
       if(i === activeIndex) return;
