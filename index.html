@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
   <style>
     :root{
-  --thumb-scale: .62;     /* <-- 3/4 højde (og bredde) */
+  --thumb-scale: .58;    
   --thumb-w-base: 70px;
   --thumb-w-sm-base: 56px;
 
@@ -38,54 +38,21 @@
     }
     .hero-layer.show{ opacity:1; transform:translate(-50%,-50%) translateZ(0); }
 
-    /* THUMB STRIP */
-/* THUMB STRIP */
-.rail-wrap{
+ .rail-wrap{
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 8px;
+  bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 5;
-  opacity: 0;              
-  pointer-events: none;    
-  transition: opacity .25s ease;
-  will-change: opacity;
-}
 
-.rail-wrap, .rail, .track{
-  transform: translateZ(0);
-  will-change: transform, opacity;
-}
-
-.rail-wrap.is-ready{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-
-    /* Only hide when explicitly hidden AND ready (prevents boot flicker) */
-./* Smooth hide without flicker */
-.rail-wrap{
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity .25s ease;
-}
-
-.rail-wrap.is-ready{
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-}
 
-/* Idle hide (keep GPU layer stable) */
-.rail-wrap.is-ready.is-hidden{
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  will-change: transform;
 }
 
 
@@ -109,14 +76,15 @@
     .thumb img{ width:100%; height:100%; object-fit:cover; display:block; backface-visibility:hidden; transform:translateZ(0); }
 
     .caption{
-      position:fixed; inset:auto 0 68px 0; text-align:center;
+      position:fixed; inset:auto 0 72px 0; text-align:center;
       font-size:12px; letter-spacing:.01em; z-index:6; user-select:none;
     }
 
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
-      .caption{ font-size:12px; inset-block-end:68px; }
-      .hero-layer{ width:100%; width: 92svw; max-width:100%; max-height:80svh; }
+      .caption{ font-size:11px; inset-block-end: 68px; }
+      .hero-layer{ width:100%; width: 95svw; max-width:100%; max-height:80svh; }
+      .rail-wrap{ bottom: 8px !important;}
     }
 
     /* ===== Overlay / Menu / Preloader ===== */
@@ -143,10 +111,10 @@
     /* Floating label next to the menu icon */
 #menuLabel{
   position: absolute;
-  top: 24px;                /* align with your icon */
+  top: 25px;                /* align with your icon */
   left: 24px;
   transform: translate(32px, 1px);  /* offset to the right of the icon */
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   letter-spacing: .01em;
 
@@ -424,38 +392,52 @@ body.menu-open #menuLabel::after { content: 'close'; }
     }
 
     let firstSet, secondSet, thirdSet, setWidth = 0;
-    function measure(){
-      const fallback = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70) * images.length;
-      setWidth = fallback;
-      const w = firstSet.getBoundingClientRect().width;
-      if(w > 0) setWidth = w;
-    }
-   function buildAllSets(){
+function measure(){
+  const r = firstSet.getBoundingClientRect();
+  setWidth = r.width || 0; // keep as float
+}
+
+
+
+    let wrapBase = 0;
+ let midSet = 0;
+let minTx = 0;
+let maxTx = 0;
+
+function buildAllSets(){
   track.innerHTML = '';
 
   // Build first set
   firstSet = buildSet();
   track.append(firstSet);
 
-  // Measure after first set is in DOM
+  // Measure real set width
   measure();
 
-  // How many sets do we need so we never see an edge?
-  // Ensure total track width >= viewport + 2*setWidth (one full set on each side)
-  const needed = Math.max(3, Math.ceil((innerWidth + 2 * setWidth) / setWidth));
+  // Build enough sets so you NEVER see an edge
+  // viewport + 2 sets buffer (one on each side)
+ // Build enough sets so we NEVER see an edge (extra safety buffer)
+const SAFETY_SETS = 6; // bigger buffer = no gaps
+const needed = Math.max(7, Math.ceil(innerWidth / setWidth) + SAFETY_SETS);
 
-  // Append remaining sets
   for(let i = 1; i < needed; i++){
     track.append(buildSet());
   }
 
-  // Start centered in the middle set
-  const mid = Math.floor(needed / 2);
-  tx = -setWidth * mid;
+  // Start on the middle set
+  midSet = Math.floor(needed / 2);
+  tx = -setWidth * midSet;
+
+  // Safe band: allow drifting 1 full set left/right from mid
+  maxTx = -setWidth * (midSet - 1);
+  minTx = -setWidth * (midSet + 1);
 
   applyTransform();
   updateHero(computeActiveIndex());
 }
+
+
+
 
 
     /* =========================
@@ -539,11 +521,17 @@ body.menu-open #menuLabel::after { content: 'close'; }
       const nums = parts[1].split(',').map(parseFloat);
       return (nums.length===6 ? nums[4] : nums[12]) || 0;
     }
-    function wrapTx(){
-      if(setWidth <= 0) return;
-      if(tx > 0){ tx -= setWidth * Math.ceil(tx / setWidth); }
-      if(tx < -setWidth){ tx += setWidth * Math.ceil((-tx) / setWidth); }
-    }
+function wrapTx(){
+  if(setWidth <= 0) return;
+
+  // If we drift too far right (toward 0), jump left by 1 set
+  if(tx > maxTx) tx -= setWidth;
+
+  // If we drift too far left, jump right by 1 set
+  else if(tx < minTx) tx += setWidth;
+}
+
+
 
     
 
@@ -669,7 +657,6 @@ function scheduleHide(ms){
       lastTime = now;
       requestAnimationFrame(step);
 
-      railWrap.classList.remove('is-hidden');
     }
 
     /* =========================
@@ -753,13 +740,8 @@ window.addEventListener('focus', resync, {passive:true});
 function waitThumbsReady(){
   const imgs = track.querySelectorAll('.thumb img');
   const ps = [...imgs].map(img => {
-    // If already loaded, still wait a microtask so layout can catch up
     if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-
-    if (img.decode) {
-      return img.decode().catch(()=>{});
-    }
-
+    if (img.decode) return img.decode().catch(()=>{});
     return new Promise(res=>{
       img.addEventListener('load', res, {once:true});
       img.addEventListener('error', res, {once:true});
@@ -767,10 +749,10 @@ function waitThumbsReady(){
   });
 
   return Promise.all(ps).then(() => new Promise(res=>{
-    // 2x rAF = paint has definitely happened
     requestAnimationFrame(()=> requestAnimationFrame(res));
   }));
 }
+
 
 
 async function boot(){
@@ -781,12 +763,12 @@ async function boot(){
   buildAllSets();
 
   // Wait until thumbs are decoded, then reveal
-  await waitThumbsReady();
+await waitThumbsReady();
   railWrap.classList.add('is-ready');
 
   // Start animation once
   requestAnimationFrame(step);
-  selfTest();
+
  
 
   // OPTIONAL: load images.json AFTER we're stable, only rebuild if it actually changes
@@ -804,8 +786,11 @@ async function boot(){
 
           railWrap.classList.remove('is-ready');
           buildAllSets();
-          await waitThumbsDecoded();
+          await waitThumbsReady();
           railWrap.classList.add('is-ready');
+          scheduleHide(5000);
+
+          
         }
       }
     }
