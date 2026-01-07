@@ -75,14 +75,35 @@
     }
     .thumb img{ width:100%; height:100%; object-fit:cover; display:block; backface-visibility:hidden; transform:translateZ(0); }
 
-    .caption{
-      position:fixed; inset:auto 0 72px 0; text-align:center;
-      font-size:12px; letter-spacing:.01em; z-index:6; user-select:none;
-    }
+
+.caption{
+  position: fixed;
+  inset: auto 14px 72px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 12px;
+  letter-spacing: .01em;
+  z-index: 6;
+  user-select: none;
+  pointer-events: none;
+}
+
+.caption-count{
+  text-align: left;
+  white-space: nowrap;
+}
+
+.caption-title{
+  text-align: right;
+  white-space: nowrap;
+}
+
 
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
-      .caption{ font-size:11px; inset-block-end: 68px; }
+      .caption{ font-size:11px; inset: auto 10px 68px 10px; }
       .hero-layer{ width:100%; width: 95svw; max-width:100%; max-height:80svh; }
       .rail-wrap{ bottom: 8px !important;}
     }
@@ -275,7 +296,11 @@ body.menu-open #menuLabel::after { content: 'close'; }
     </div>
   </div>
 
-  <div class="caption" id="caption" aria-live="polite">&nbsp;</div>
+<div class="caption" id="caption" aria-live="polite">
+  <span class="caption-count"></span>
+  <span class="caption-title"></span>
+</div>
+
 
   <script>
   (()=>{
@@ -358,7 +383,12 @@ body.menu-open #menuLabel::after { content: 'close'; }
     if(images && images.length){
       heroA.src = images[0].src;
       heroA.classList.add('show');
-      caption.textContent = `1 / ${images.length} — ${images[0].title || ''}`;
+      const countEl = caption.querySelector('.caption-count');
+const titleEl = caption.querySelector('.caption-title');
+
+countEl.textContent = `1 / ${images.length}`;
+titleEl.textContent = images[0].title || '';
+
     }
 
     /* =========================
@@ -473,9 +503,13 @@ const needed = Math.max(7, Math.ceil(innerWidth / setWidth) + SAFETY_SETS);
         front.classList.remove('show');
         frontIsA = !frontIsA;
       });
+const countEl = caption.querySelector('.caption-count');
+const titleEl = caption.querySelector('.caption-title');
 
-      caption.textContent = `${i+1} / ${images.length} — ${item.title || ''}`;
+countEl.textContent = `${i + 1} / ${images.length}`;
+titleEl.textContent = item.title || '';
 
+      
       const n1 = images[(i+1)%images.length];
       const p1 = images[(i-1+images.length)%images.length];
       [n1, p1].forEach(it=>{
