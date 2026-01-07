@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
   <style>
     :root{
-      --thumb-w: 70px;
-      --thumb-w-sm: 56px;
-      --hero-h: 80svh;
-      --speed: 0.045;     /* px per ms for auto glide */
-      --gap: 0;
-    }
+  --thumb-scale: .62;     /* <-- 3/4 højde (og bredde) */
+  --thumb-w-base: 70px;
+  --thumb-w-sm-base: 56px;
+
+  --thumb-w: calc(var(--thumb-w-base) * var(--thumb-scale));
+  --thumb-w-sm: calc(var(--thumb-w-sm-base) * var(--thumb-scale));
+
+  --hero-h: 70svh;
+  --speed: 0.035;
+  --gap: 0;
+}
+
 
     html, body{
       margin:0; padding:0; height:100svh; overflow:hidden;
@@ -33,8 +39,59 @@
     .hero-layer.show{ opacity:1; transform:translate(-50%,-50%) translateZ(0); }
 
     /* THUMB STRIP */
-    .rail-wrap{ position:fixed; inset:0; display:grid; place-items:center; z-index:5; opacity:1; transition:opacity .5s ease; will-change:opacity; }
-    .rail-wrap.is-hidden{ opacity:0; }
+/* THUMB STRIP */
+.rail-wrap{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+
+  opacity: 0;              /* ✅ hidden by default */
+  pointer-events: none;    /* ✅ no interaction until ready */
+  transition: opacity .25s ease;
+  will-change: opacity;
+}
+.rail-wrap, .rail, .track{
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+.rail-wrap.is-ready{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+    /* Only hide when explicitly hidden AND ready (prevents boot flicker) */
+./* Smooth hide without flicker */
+.rail-wrap{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.rail-wrap.is-ready{
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Idle hide (keep GPU layer stable) */
+.rail-wrap.is-ready.is-hidden{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+
+/* Avoid subpixel flicker during transform */
+.rail{ transform: translateZ(0); }
+.track{ backface-visibility: hidden; transform: translate3d(0,0,0); }
     .rail-wrap.fast{ transition-duration:.3s; }
     .rail{ position:relative; display:flex; align-items:center; gap:var(--gap); width:100vw; overflow:hidden; cursor:grab; touch-action:none; }
     body.dragging, .rail.dragging{ cursor:grabbing; }
@@ -52,13 +109,13 @@
     .thumb img{ width:100%; height:100%; object-fit:cover; display:block; backface-visibility:hidden; transform:translateZ(0); }
 
     .caption{
-      position:fixed; inset:auto 0 14px 0; text-align:center;
+      position:fixed; inset:auto 0 68px 0; text-align:center;
       font-size:12px; letter-spacing:.01em; z-index:6; user-select:none;
     }
 
     @media (max-width:800px){
-      :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; }
-      .caption{ font-size:12px; inset-block-end:8px; }
+      :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .9; }
+      .caption{ font-size:12px; inset-block-end:80px; }
       .hero-layer{ width:100%; height:80svh; max-width:100%; max-height:80svh; }
     }
 
@@ -115,36 +172,85 @@ body.menu-open #menuLabel::after { content: 'close'; }
 }
 
 
-    #overlay{
-      position:fixed; inset:0; height:100svh; background:rgba(0,0,0,.9);
-      backdrop-filter:blur(10px); z-index:99; display:flex; align-items:center; justify-content:center;
-      color:#fff; font-family:"neue-haas-grotesk-display", sans-serif;
-      opacity:0; pointer-events:none; transition:opacity .4s ease;
-    }
-    #overlay.active{ opacity:1; pointer-events:all; }
-    body.menu-open .rail-wrap{ opacity:0 !important; pointer-events:none; }
-    body.menu-open .caption{ opacity:0; }
+   /* ===== FORCE OLD OVERLAY LOOK (put this LAST in the CSS) ===== */
+#overlay{
+  position:fixed;
+  inset:0;
+  height:100svh;
+  background:rgba(0,0,0,.9);
+  backdrop-filter:blur(10px);
+  z-index:99;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-family:"neue-haas-grotesk-display", sans-serif;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .4s ease;
+}
+#overlay.active{ opacity:1; pointer-events:all; }
 
-    .overlay-content{
-      position:absolute; width:100%; height:100%; padding:20px; box-sizing:border-box;
-      display:grid; grid-template-columns:1fr 1fr 2fr; align-items:center; gap:24px;
-      font-size:14px; font-weight:500;
-    }
-    @media (max-width:800px){
-      .overlay-content{ grid-template-columns:1fr 1fr 1fr; text-align:left; font-size:12px; line-height:1.2; }
-    }
-    #overlay .overlay-content a, #overlay .overlay-bottom a{
-      color:#fff; text-decoration:none; background-image:linear-gradient(currentColor,currentColor);
-      background-size:0% 1px; background-position:0 100%; background-repeat:no-repeat;
-      transition:background-size .35s cubic-bezier(.37,.01,.65,.99);
-    }
-    #overlay.active .overlay-content a:hover,
-    #overlay.active .overlay-bottom a:hover,
-    #overlay.active .overlay-content a:focus-visible,
-    #overlay.active .overlay-bottom a:focus-visible{ background-size:100% 1px; outline:none; }
+.overlay-content{
+  position:absolute;
+  width:100%;
+  height:100%;
+  padding:20px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:1fr 1fr 2fr;
+  align-items:center;
+  gap:24px;
+  font-size:14px;
+  font-weight:500;
+}
 
-    .overlay-bottom{ position:absolute; left:20px; right:24px; bottom:16px; line-height:1.2; opacity:.95; }
-    @media (max-width:800px){ .overlay-bottom{ font-size:12px; } }
+@media (max-width:800px){
+  .overlay-content{
+    grid-template-columns:1fr 1fr 1fr;
+    text-align:left;
+    font-size:12px;
+    line-height:1.2;
+  }
+}
+
+.overlay-bottom{
+  position:absolute;
+  left:20px;
+  right:24px;
+  bottom:16px;
+  line-height:1.2;
+  opacity:.95;
+}
+@media (max-width:800px){
+  .overlay-bottom{ font-size:12px; }
+}
+
+/* IMPORTANT: hard-override browser default link styling inside overlay */
+#overlay a,
+#overlay a:visited{
+  color:#fff !important;
+  text-decoration:none !important;
+  -webkit-text-decoration:none !important;
+}
+
+/* your underline-on-hover effect */
+#overlay .overlay-content a,
+#overlay .overlay-bottom a{
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:0% 1px;
+  background-position:0 100%;
+  background-repeat:no-repeat;
+  transition:background-size .35s cubic-bezier(.37,.01,.65,.99);
+}
+#overlay.active .overlay-content a:hover,
+#overlay.active .overlay-bottom a:hover,
+#overlay.active .overlay-content a:focus-visible,
+#overlay.active .overlay-bottom a:focus-visible{
+  background-size:100% 1px;
+  outline:none;
+}
+
 
     /* Preloader */
     #preloader-overlay{
@@ -324,16 +430,33 @@ body.menu-open #menuLabel::after { content: 'close'; }
       const w = firstSet.getBoundingClientRect().width;
       if(w > 0) setWidth = w;
     }
-    function buildAllSets(){
-      track.innerHTML = '';
-      firstSet = buildSet();
-      secondSet = buildSet();
-      thirdSet = buildSet();
-      track.append(firstSet, secondSet, thirdSet);
-      measure();
-      tx = 0; applyTransform();
-      updateHero(computeActiveIndex());
-    }
+   function buildAllSets(){
+  track.innerHTML = '';
+
+  // Build first set
+  firstSet = buildSet();
+  track.append(firstSet);
+
+  // Measure after first set is in DOM
+  measure();
+
+  // How many sets do we need so we never see an edge?
+  // Ensure total track width >= viewport + 2*setWidth (one full set on each side)
+  const needed = Math.max(3, Math.ceil((innerWidth + 2 * setWidth) / setWidth));
+
+  // Append remaining sets
+  for(let i = 1; i < needed; i++){
+    track.append(buildSet());
+  }
+
+  // Start centered in the middle set
+  const mid = Math.floor(needed / 2);
+  tx = -setWidth * mid;
+
+  applyTransform();
+  updateHero(computeActiveIndex());
+}
+
 
     /* =========================
        HERO SYNC
@@ -422,25 +545,35 @@ body.menu-open #menuLabel::after { content: 'close'; }
       if(tx < -setWidth){ tx += setWidth * Math.ceil((-tx) / setWidth); }
     }
 
-    // Reveal/hide rail on idle
-    let hideTimer = null;
-    function showRailFast(){
-      railWrap.classList.add('fast');
-      railWrap.classList.remove('is-hidden');
-      setTimeout(()=> railWrap.classList.remove('fast'), 350);
+    
+
+// Reveal/hide rail on idle (no flicker)
+let hideTimer = null;
+
+function showRail(){
+  if(document.body.classList.contains('menu-open')) return;
+  railWrap.classList.remove('is-hidden');
+}
+
+function scheduleHide(ms){
+  if(document.body.classList.contains('menu-open')) return;
+  if(hideTimer) clearTimeout(hideTimer);
+  hideTimer = setTimeout(()=>{
+    // only hide when user is truly idle
+    if(!isDragging && !inertial && !document.body.classList.contains('menu-open')){
+      railWrap.classList.add('is-hidden');
     }
-    function scheduleHide(ms){
-      if(document.body.classList.contains('menu-open')) return;
-      if(hideTimer) clearTimeout(hideTimer);
-      hideTimer = setTimeout(()=>{ railWrap.classList.add('is-hidden'); }, ms);
-    }
+  }, ms);
+}
+
+
 
     // Pointer handlers
     function startDrag(e){
       if(uiLocked) { e?.preventDefault?.(); return; }
       if(e.isPrimary === false) return;
       tx = getComputedTx();
-      showRailFast();
+      showRail();
       document.body.classList.add('dragging');
       isDragging = true; inertial = false;
       lastPX = e.clientX; lastMoveTS = performance.now();
@@ -462,7 +595,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
       isDragging = false; inertial = true; lastTime = performance.now();
       document.body.classList.remove('dragging');
       if(e) e.preventDefault();
-      scheduleHide(1000);
+      scheduleHide(5000);
     }
 
     document.addEventListener('pointerdown', startDrag, {passive:false});
@@ -476,28 +609,40 @@ body.menu-open #menuLabel::after { content: 'close'; }
       if(hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
     });
     rail.addEventListener('mouseleave', ()=>{
-      if(!isDragging) scheduleHide(1000);
+      if(!isDragging) scheduleHide(5000);
     });
 
     function step(ts){
-      const now = ts || performance.now();
-      if(lastTime === 0) lastTime = now;
-      const rawDt = now - lastTime;
-      dtSmooth = dtSmooth * 0.95 + rawDt * 0.05;
-      const dt = dtSmooth;
+  const now = ts || performance.now();
+  if(lastTime === 0) lastTime = now;
+  const rawDt = now - lastTime;
+  dtSmooth = dtSmooth * 0.95 + rawDt * 0.05;
+  const dt = dtSmooth;
 
-      if(isDragging){
-        // position updated in moveDrag
-      } else if(inertial){
-        const target = AUTO_SPEED * AUTO_DIR;
-        const alpha = 1 - Math.exp(-dt/700);
-        vel += (target - vel) * alpha;
-        tx += vel * dt; wrapTx(); applyTransform();
-        if(Math.abs(vel - target) < 0.0008){ inertial = false; vel = target; }
-      } else {
-        vel = AUTO_SPEED * AUTO_DIR;
-        tx += vel * dt; wrapTx(); applyTransform();
-      }
+  const MAX_SPEED = .75; // px per ms (tweak)
+
+  const clamp = (v, max) => Math.max(-max, Math.min(max, v));
+
+  if(isDragging){
+    // position updated in moveDrag
+  } else if(inertial){
+    const target = AUTO_SPEED * AUTO_DIR;
+    const alpha = 1 - Math.exp(-dt/700);
+    vel += (target - vel) * alpha;
+
+    vel = clamp(vel, MAX_SPEED);         
+    tx += vel * dt; wrapTx(); applyTransform();
+
+    if(Math.abs(vel - target) < 0.0008){
+      inertial = false;
+      vel = target;
+    }
+  } else {
+    vel = AUTO_SPEED * AUTO_DIR;
+
+    vel = clamp(vel, MAX_SPEED);       
+    tx += vel * dt; wrapTx(); applyTransform();
+  }
 
       const idx = computeActiveIndex();
       const w = (setWidth / images.length) || (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70);
@@ -523,6 +668,8 @@ body.menu-open #menuLabel::after { content: 'close'; }
 
       lastTime = now;
       requestAnimationFrame(step);
+
+      railWrap.classList.remove('is-hidden');
     }
 
     /* =========================
@@ -547,7 +694,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
         try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
         railWrap.classList.add('is-hidden');
       }else{
-        scheduleHide(5000);
+        scheduleHide(10000);
       }
       overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
     }
@@ -582,55 +729,94 @@ body.menu-open #menuLabel::after { content: 'close'; }
     window.addEventListener('touchmove', scrollBlock, {passive:false});
     window.addEventListener('wheel', scrollBlock, {passive:false});
 
-    // BFCache / visibility reload safeguards
-    window.addEventListener('pageshow', (e)=>{ if(e.persisted) setTimeout(()=>location.reload(), 50); }, {passive:true});
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.visibilityState === 'hidden'){
-        sessionStorage.setItem('wasHidden','1');
-      } else if (document.visibilityState === 'visible' && sessionStorage.getItem('wasHidden') === '1'){
-        sessionStorage.removeItem('wasHidden'); setTimeout(()=>location.reload(), 50);
-      }
-    }, {passive:true});
-    window.addEventListener('focus', ()=>{
-      if(sessionStorage.getItem('wasHidden') === '1'){
-        sessionStorage.removeItem('wasHidden'); setTimeout(()=>location.reload(), 50);
-      }
-    }, {passive:true});
+   function resync(){
+  measure();
+  wrapTx();
+  applyTransform();
+  updateHero(computeActiveIndex());
+}
+
+window.addEventListener('pageshow', resync, {passive:true});
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') resync();
+}, {passive:true});
+window.addEventListener('focus', resync, {passive:true});
+
 
     /* =========================
        BOOT
     ========================= */
-    function selfTest(){
-      console.groupCollapsed('carousel self-test');
-      console.assert(images.length > 0, 'images array is empty');
-      console.assert(track.querySelectorAll('.set').length === 3, 'expected 3 duplicated sets');
-      console.assert(document.querySelectorAll('.thumb').length === images.length*3, 'thumb count mismatch');
-      const startLeft = track.getBoundingClientRect().left;
-      setTimeout(()=>{
-        const moved = track.getBoundingClientRect().left !== startLeft;
-        console.assert(moved, 'autoplay transform did not move track');
-        console.assert(typeof scheduleHide === 'function', 'scheduleHide is not defined');
-        console.groupEnd();
-      }, 1200);
+    /* =========================
+   BOOT (no flicker, true infinite feel)
+========================= */
+
+function waitThumbsReady(){
+  const imgs = track.querySelectorAll('.thumb img');
+  const ps = [...imgs].map(img => {
+    // If already loaded, still wait a microtask so layout can catch up
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+
+    if (img.decode) {
+      return img.decode().catch(()=>{});
     }
 
-    window.addEventListener('load', async ()=>{
-      await loadImagesFromJSON();
-      buildAllSets();
-      tx = 0; applyTransform(); updateHero(computeActiveIndex());
-      requestAnimationFrame(step);
-      selfTest();
-      scheduleHide(5000);
+    return new Promise(res=>{
+      img.addEventListener('load', res, {once:true});
+      img.addEventListener('error', res, {once:true});
     });
+  });
 
-    window.addEventListener('resize', ()=>{
-      const prev = setWidth;
-      measure();
-      if(prev !== setWidth){
-        applyTransform();
-        updateHero(computeActiveIndex());
+  return Promise.all(ps).then(() => new Promise(res=>{
+    // 2x rAF = paint has definitely happened
+    requestAnimationFrame(()=> requestAnimationFrame(res));
+  }));
+}
+
+
+async function boot(){
+  // Hide rail during build
+  railWrap.classList.remove('is-ready');
+
+  // Build immediately from inline array
+  buildAllSets();
+
+  // Wait until thumbs are decoded, then reveal
+  await waitThumbsReady();
+  railWrap.classList.add('is-ready');
+
+  // Start animation once
+  requestAnimationFrame(step);
+  selfTest();
+ 
+
+  // OPTIONAL: load images.json AFTER we're stable, only rebuild if it actually changes
+  try{
+    const r = await fetch('images.json', {cache:'no-store'});
+    if(r.ok){
+      const data = await r.json();
+      if(Array.isArray(data) && data.every(o=>o && o.src)){
+        const same =
+          data.length === images.length &&
+          data.every((d,i)=> d.src === images[i].src && (d.title||'') === (images[i].title||''));
+
+        if(!same){
+          images = data;
+
+          railWrap.classList.remove('is-ready');
+          buildAllSets();
+          await waitThumbsDecoded();
+          railWrap.classList.add('is-ready');
+        }
       }
-    });
+    }
+  }catch(_){}
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+
+
+
+
   })();
   </script>
 </body>
