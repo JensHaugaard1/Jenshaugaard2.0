@@ -355,6 +355,22 @@ body.menu-open #menuLabel::after { content: 'close'; }
     /* =========================
        HELPERS
     ========================= */
+    const CAN_HAPTIC = typeof navigator !== "undefined" && "vibrate" in navigator;
+
+// tune: keep it super subtle
+const HAPTIC_MS = 6;          // 4–10ms feels “tick”
+const HAPTIC_COOLDOWN = 60;   // ms (prevents buzzing)
+let lastHapticAt = 0;
+
+function hapticTick(){
+  if(!CAN_HAPTIC) return;
+  const now = performance.now();
+  if(now - lastHapticAt < HAPTIC_COOLDOWN) return;
+  lastHapticAt = now;
+  navigator.vibrate(HAPTIC_MS);
+}
+
+    
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
     const $ = (sel, root=document)=> root.querySelector(sel);
 
@@ -703,8 +719,11 @@ function scheduleHide(ms){
 
       if(isFast || (lastHeroRendered !== -1 && Math.abs(currentIdx - lastHeroRendered) >= 1)){
         if(currentIdx !== lastHeroRendered){
-          updateHero(currentIdx);
-          lastHeroRendered = currentIdx;
+        updateHero(currentIdx);
+        lastHeroRendered = currentIdx;
+
+        if(isDragging) hapticTick();
+
           lastHeroCheck = now;
         }
       } else {
@@ -712,6 +731,9 @@ function scheduleHide(ms){
         if(now - lastHeroCheck > interval && now - idxStableSince > 80 && currentIdx !== lastHeroRendered){
           updateHero(currentIdx);
           lastHeroRendered = currentIdx;
+
+        if(isDragging) hapticTick();
+
           lastHeroCheck = now;
         }
       }
