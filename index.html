@@ -119,7 +119,7 @@
 
     /* ===== Overlay / Menu / Preloader ===== */
     #menuToggle{
-      position:absolute; top:24px; left:24px; width:20px; height:20px;
+      position:absolute; top:18px; left:18px; width:20px; height:20px;
       z-index:110 !important; cursor:pointer; mix-blend-mode:difference;
       -webkit-user-drag:none; user-select:none; touch-action:manipulation;
       transition:transform .4s cubic-bezier(.37,.01,.65,.99);
@@ -141,8 +141,8 @@
     /* Floating label next to the menu icon */
 #menuLabel{
   position: absolute;
-  top: 25px;                /* align with your icon */
-  left: 24px;
+  top: 19px;                /* align with your icon */
+  left: 18px;
   transform: translate(32px, 1px);  /* offset to the right of the icon */
   font-size: 14px;
   line-height: 1;
@@ -168,6 +168,46 @@ body.menu-open #menuLabel::after { content: 'close'; }
 #menuHit:focus-visible ~ #menuLabel{
   opacity: 1;
 }
+
+/* Static logo (top right) */
+#logoStatic{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width: 45px;
+  height:20px;
+
+  z-index:110 !important;
+
+  mix-blend-mode:difference;
+
+  pointer-events:none;       /* ← completely static */
+  user-select:none;
+  -webkit-user-drag:none;
+
+  display:block;
+}
+
+
+@media (max-width:800px){
+  #logoStatic{
+    top:18px;
+  right:16px;
+  
+  }
+   #menuToggle{
+ top:18px;
+  left:16px;
+   }
+
+
+  }
+
+  #menuLabel{
+     top: 19px;                /* align with your icon */
+  left: 16px;
+  }
+
 
 
    /* ===== FORCE OLD OVERLAY LOOK (put this LAST in the CSS) ===== */
@@ -276,6 +316,10 @@ body.menu-open #menuLabel::after { content: 'close'; }
   <img src="menu.svg" id="menuToggle" alt="Open menu">
   <button id="menuHit" aria-label="Open menu"></button>
   <span id="menuLabel" aria-hidden="true"></span>
+
+  <!-- Static logo (top right) -->
+<img src="LOGO.svg" id="logoStatic" alt="Jens Haugaard logo">
+
 
   <!-- Overlay -->
   <div id="overlay" aria-hidden="true">
