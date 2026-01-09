@@ -113,7 +113,7 @@
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
       .caption{ font-size:11px; inset: auto 10px 68px 10px; }
-      .hero-layer{ width:100%; width: 95svw; max-width:100%; max-height:80svh; }
+      .hero-layer{ width:100%; width: 95svw; max-width:100%; max-height:70svh; }
       .rail-wrap{ bottom: 8px !important;}
     }
 
@@ -203,14 +203,18 @@ body.menu-open #menuLabel::after { content: 'close'; }
  top:18px;
   left:16px;
    }
-
-
-  }
-
-  #menuLabel{
+#menuLabel{
      top: 20px;                /* align with your icon */
   left: 16px;
   }
+#bottomLine{
+display: none !important;
+}
+
+
+  }
+
+  
 
   /* Static bottom line */
 #bottomLine{
