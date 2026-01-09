@@ -189,6 +189,10 @@ body.menu-open #menuLabel::after { content: 'close'; }
 }
 
 
+
+
+
+
 @media (max-width:800px){
   #logoStatic{
     top:18px;
@@ -207,6 +211,29 @@ body.menu-open #menuLabel::after { content: 'close'; }
      top: 20px;                /* align with your icon */
   left: 16px;
   }
+
+  /* Static bottom line */
+#bottomLine{
+  position: fixed;
+  left: 50%;
+  bottom: 0px;                /* adjust if needed */
+  transform: translateX(-50%);
+
+  height: 22px;               /* or width-based if your SVG prefers */
+  width: auto;
+
+  z-index: 4;                 /* below rail (z=5), above hero */
+
+  mix-blend-mode: difference;
+
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+
+  display: block;
+}
+
+
 
 
 
@@ -319,6 +346,10 @@ body.menu-open #menuLabel::after { content: 'close'; }
 
   <!-- Static logo (top right) -->
 <img src="LOGO.svg" id="logoStatic" alt="Jens Haugaard logo">
+
+<!-- Static bottom line -->
+<img src="LINE.svg" id="bottomLine" alt="">
+
 
 
   <!-- Overlay -->
