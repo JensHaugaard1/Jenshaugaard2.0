@@ -490,6 +490,20 @@ function setSafariThemeColor(hex){
   if(themeMeta) themeMeta.setAttribute('content', hex);
 }
 
+// iOS Safari sometimes needs a tiny nudge to repaint browser chrome
+function iosThemeNudge(){
+  // Only relevant on small screens (your breakpoint)
+  if(!window.matchMedia('(max-width: 800px)').matches) return;
+
+  // This triggers a UI repaint without a visible scroll
+  requestAnimationFrame(() => {
+    const y = window.scrollY;
+    window.scrollTo(0, y + 1);
+    window.scrollTo(0, y);
+  });
+}
+
+
 
     const CAN_HAPTIC = typeof navigator !== "undefined" && "vibrate" in navigator;
 
@@ -893,23 +907,19 @@ function scheduleHide(ms){
     setTimeout(hidePreloader, 4000);
 
     function setMenuState(open){
-      overlay.classList.toggle('active', open);
-      document.body.classList.toggle('menu-open', open);
-      menuIcon.classList.toggle('rotated', open);
-      uiLocked = !!open;
-      if(open){
-        try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
-        railWrap.classList.add('is-hidden');
-      }else{
-        scheduleHide(10000);
-      }
-      overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
-      if (window.matchMedia('(max-width: 800px)').matches){
-  setSafariThemeColor(open ? '#121212' : '#ffffff');
+  overlay.classList.toggle('active', open);
+  document.body.classList.toggle('menu-open', open);
+  menuIcon.classList.toggle('rotated', open);
+  uiLocked = !!open;
+
+  if(window.matchMedia('(max-width: 800px)').matches){
+    setSafariThemeColor(open ? '#121212' : '#ffffff');
+    iosThemeNudge();
+  }
+
+  overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
 }
 
-      
-    }
 
     function toggleMenu(e){
       e?.stopPropagation?.();
