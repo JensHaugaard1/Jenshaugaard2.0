@@ -104,12 +104,6 @@
 }
 
 
-@media (min-width:801px){
-body.menu-open{
-  background:#121212;
-}
-}
-
 .caption{
   position: fixed;
   inset: auto 14px 72px 14px;
@@ -360,6 +354,24 @@ display: none !important;
       100%{ transform:rotate(180deg) scale(110%); }
     }
     #preloader-overlay.fade-out{ opacity:0; }
+
+    #bgCanvas{
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 1;          /* above the body background */
+  pointer-events: none; /* IMPORTANT: don't block interaction */
+}
+
+.hero-wrap{ z-index: 2; }
+
+html, body{ background:#fff; }
+
+body.menu-open{
+  background:#121212;
+}
+
+
   </style>
 </head>
 <body>
@@ -423,6 +435,9 @@ display: none !important;
 </div>
 
 </main>
+
+<div id="bgCanvas" aria-hidden="true"></div>
+
 
   <script>
   (()=>{
@@ -877,31 +892,24 @@ function scheduleHide(ms){
     document.addEventListener('DOMContentLoaded', ()=> setTimeout(hidePreloader, 1800));
     setTimeout(hidePreloader, 4000);
 
-function setMenuState(open){
-  overlay.classList.toggle('active', open);
-  document.body.classList.toggle('menu-open', open);
-  menuIcon.classList.toggle('rotated', open);
-  uiLocked = !!open;
-
-  
-  if(isMobile()){
-    setSafariThemeColor(open ? '#121212' : '#ffffff');
-  }
-
-  if(open){
-    if(hideTimer){
-      clearTimeout(hideTimer);
-      hideTimer = null;
-    }
-    railWrap.classList.add('is-hidden');
-  }else{
-    scheduleHide(10000);
-  }
-
-  overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    function setMenuState(open){
+      overlay.classList.toggle('active', open);
+      document.body.classList.toggle('menu-open', open);
+      menuIcon.classList.toggle('rotated', open);
+      uiLocked = !!open;
+      if(open){
+        try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
+        railWrap.classList.add('is-hidden');
+      }else{
+        scheduleHide(10000);
+      }
+      overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (window.matchMedia('(max-width: 800px)').matches){
+  setSafariThemeColor(open ? '#121212' : '#ffffff');
 }
 
-
+      
+    }
 
     function toggleMenu(e){
       e?.stopPropagation?.();
