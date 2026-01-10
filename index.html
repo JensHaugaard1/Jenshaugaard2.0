@@ -3,9 +3,26 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>JENS HAUGAARD</title>
+  <meta name="description" content="Jens Haugaard is a Copenhagen-based photographer and multidisciplinary creative exploring visual mediums, campaigns, and contemporary culture.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Jens Haugaard — Photographer & Creative">
+  <meta property="og:description" content="Photography, campaigns, and visual storytelling by Copenhagen-based creative Jens Haugaard.">
+  <meta property="og:url" content="https://www.jenshaugaard.com/">
+  <meta property="og:image" content="https://www.jenshaugaard.com/og.jpg">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="https://www.jenshaugaard.com/">
+  <title>Jens Haugaard Photographer & Multidisciplinary Creative</title>
   <link rel="icon" type="image/x-icon" href="/FAVICON_2.png">
   <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.jenshaugaard.com/</loc>
+    <lastmod>2025-01-01</lastmod>
+  </url>
+  </urlset>
+
+  
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CNJGBWHP1"></script>
 <script>
@@ -83,6 +100,15 @@
       position:relative; overflow:hidden; border:0; margin:0; padding:0; background:#000;
     }
     .thumb img{ width:100%; height:100%; object-fit:cover; display:block; backface-visibility:hidden; transform:translateZ(0); }
+
+
+    .sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+}
 
 
 .caption{
@@ -338,6 +364,12 @@ display: none !important;
   </style>
 </head>
 <body>
+
+<h1 class="sr-only">
+  Jens Haugaard — Photographer & Multidisciplinary Creative
+</h1>
+
+
   <!-- Preloader -->
   <div id="preloader-overlay">
     <div id="preloader"><img src="menu.svg" alt="Preloader Icon" id="preloader-icon"/></div>
@@ -371,10 +403,12 @@ display: none !important;
     </div>
   </div>
 
+  <main>
+
   <!-- Hero -->
   <div class="hero-wrap">
-    <img class="hero-layer show" id="heroA" alt="Current image layer A">
-    <img class="hero-layer" id="heroB" alt="Current image layer B">
+    <img class="hero-layer show" id="heroA" alt="Photography by Jens Haugaard">
+    <img class="hero-layer" id="heroB" alt="Photography by Jens Haugaard">
   </div>
 
   <!-- Carousel -->
@@ -389,6 +423,7 @@ display: none !important;
   <span class="caption-title"></span>
 </div>
 
+</main>
 
   <script>
   (()=>{
@@ -967,5 +1002,30 @@ document.addEventListener('DOMContentLoaded', boot);
 
   })();
   </script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Jens Haugaard",
+  "url": "https://www.jenshaugaard.com",
+  "image": "https://www.jenshaugaard.com/og.jpg",
+  "jobTitle": "Photographer",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "DUCOR"
+  },
+  "sameAs": [
+    "https://www.instagram.com/jenshaugaaard"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Copenhagen",
+    "addressCountry": "DK"
+  }
+}
+</script>
+
+
 </body>
 </html>
