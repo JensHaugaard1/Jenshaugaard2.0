@@ -104,6 +104,12 @@
 }
 
 
+@media (min-width:801px){
+body.menu-open{
+  background:#121212;
+}
+}
+
 .caption{
   position: fixed;
   inset: auto 14px 72px 14px;
@@ -462,6 +468,14 @@ display: none !important;
     /* =========================
        HELPERS
     ========================= */
+
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+function setSafariThemeColor(hex){
+  if(themeMeta) themeMeta.setAttribute('content', hex);
+}
+
+
     const CAN_HAPTIC = typeof navigator !== "undefined" && "vibrate" in navigator;
 
 // tune: keep it super subtle
@@ -864,18 +878,17 @@ function scheduleHide(ms){
     setTimeout(hidePreloader, 4000);
 
     function setMenuState(open){
-      overlay.classList.toggle('active', open);
-      document.body.classList.toggle('menu-open', open);
-      menuIcon.classList.toggle('rotated', open);
-      uiLocked = !!open;
-      if(open){
-        try{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }catch(_){}
-        railWrap.classList.add('is-hidden');
-      }else{
-        scheduleHide(10000);
-      }
-      overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
-    }
+  overlay.classList.toggle('active', open);
+  document.body.classList.toggle('menu-open', open);
+  menuIcon.classList.toggle('rotated', open);
+  uiLocked = !!open;
+
+  // Safari / iOS browser chrome color
+  setSafariThemeColor(open ? '#121212' : '#ffffff');
+
+  overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+
 
     function toggleMenu(e){
       e?.stopPropagation?.();
