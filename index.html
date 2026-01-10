@@ -877,17 +877,30 @@ function scheduleHide(ms){
     document.addEventListener('DOMContentLoaded', ()=> setTimeout(hidePreloader, 1800));
     setTimeout(hidePreloader, 4000);
 
-    function setMenuState(open){
+function setMenuState(open){
   overlay.classList.toggle('active', open);
   document.body.classList.toggle('menu-open', open);
   menuIcon.classList.toggle('rotated', open);
   uiLocked = !!open;
 
-  // Safari / iOS browser chrome color
-  setSafariThemeColor(open ? '#121212' : '#ffffff');
+  
+  if(isMobile()){
+    setSafariThemeColor(open ? '#121212' : '#ffffff');
+  }
+
+  if(open){
+    if(hideTimer){
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+    railWrap.classList.add('is-hidden');
+  }else{
+    scheduleHide(10000);
+  }
 
   overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
 }
+
 
 
     function toggleMenu(e){
