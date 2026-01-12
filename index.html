@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Jens Haugaard is a Copenhagen-based photographer and multidisciplinary creative exploring visual mediums, campaigns, and contemporary culture.">
+  <meta name="description" content="Jens Haugaard is a Copenhagen-based photographer and multidisciplinary creative exploring visual mediums.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Jens Haugaard — Photographer & Creative">
   <meta property="og:description" content="Photography, campaigns, and visual storytelling by Copenhagen-based creative Jens Haugaard.">
@@ -843,7 +843,7 @@ function scheduleHide(ms){
     // position updated in moveDrag
   } else if(inertial){
     const target = AUTO_SPEED * AUTO_DIR;
-    const alpha = 1 - Math.exp(-dt/700);
+    const alpha = 1 - Math.exp(-dt/250);
     vel += (target - vel) * alpha;
 
     vel = clamp(vel, MAX_SPEED);         
@@ -892,6 +892,45 @@ function scheduleHide(ms){
       requestAnimationFrame(step);
 
     }
+
+
+// Desktop vertical scroll → horizontal carousel motion
+const isDesktop = window.matchMedia('(pointer: fine)').matches;
+
+if(isDesktop){
+  window.addEventListener('wheel', onWheel, { passive:false });
+}
+
+function onWheel(e){
+  // ignore when menu open
+  if(uiLocked) return;
+
+  e.preventDefault();
+
+  // convert vertical scroll into horizontal movement
+  const delta = e.deltaY || e.deltaX || 0;
+
+  // tune this value for feel
+  const SCROLL_MULT = 0.05;
+
+  // inject velocity instead of hard position jump (smooth!)
+  vel += -delta * SCROLL_MULT * 0.1;
+
+  // clamp so it never explodes
+  const MAX_SCROLL_VEL = 0.7;
+  vel = Math.max(-MAX_SCROLL_VEL, Math.min(MAX_SCROLL_VEL, vel));
+
+  inertial = true;
+  showRail();
+  if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
+}
+
+function resetAnimationClock(){
+  lastTime = 0;       // forces step() to treat next frame as fresh
+  dtSmooth = 16.7;    // reset smoothing baseline
+}
+
+
 
     /* =========================
        MENU + PRELOADER
@@ -951,18 +990,30 @@ function scheduleHide(ms){
     window.addEventListener('touchmove', scrollBlock, {passive:false});
     window.addEventListener('wheel', scrollBlock, {passive:false});
 
-   function resync(){
+  function resync(){
   measure();
   wrapTx();
   applyTransform();
   updateHero(computeActiveIndex());
 }
 
-window.addEventListener('pageshow', resync, {passive:true});
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible') resync();
+  if(document.visibilityState === 'visible'){
+    resetAnimationClock();
+    resync();
+  }
 }, {passive:true});
-window.addEventListener('focus', resync, {passive:true});
+
+window.addEventListener('focus', ()=>{
+  resetAnimationClock();
+  resync();
+}, {passive:true});
+
+window.addEventListener('pageshow', ()=>{
+  resetAnimationClock();
+  resync();
+}, {passive:true});
+
 
 
     /* =========================
