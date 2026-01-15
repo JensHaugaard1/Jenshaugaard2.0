@@ -239,7 +239,7 @@ display: none !important;
 #bottomLine{
   position: fixed;
   left: 50%;
-  bottom: 0px;                /* adjust if needed */
+  bottom: -2px;                /* adjust if needed */
   transform: translateX(-50%);
 
   height: 22px;               /* or width-based if your SVG prefers */
@@ -835,7 +835,7 @@ function scheduleHide(ms){
   dtSmooth = dtSmooth * 0.95 + rawDt * 0.05;
   const dt = dtSmooth;
 
-  const MAX_SPEED = .75; // px per ms (tweak)
+  const MAX_SPEED = 2; // px per ms (tweak)
 
   const clamp = (v, max) => Math.max(-max, Math.min(max, v));
 
@@ -911,13 +911,13 @@ function onWheel(e){
   const delta = e.deltaY || e.deltaX || 0;
 
   // tune this value for feel
-  const SCROLL_MULT = 0.05;
+  const SCROLL_MULT = 0.007;
 
   // inject velocity instead of hard position jump (smooth!)
   vel += -delta * SCROLL_MULT * 0.1;
 
   // clamp so it never explodes
-  const MAX_SCROLL_VEL = 0.7;
+  const MAX_SCROLL_VEL = 1.5;
   vel = Math.max(-MAX_SCROLL_VEL, Math.min(MAX_SCROLL_VEL, vel));
 
   inertial = true;
@@ -927,7 +927,7 @@ function onWheel(e){
 
 function resetAnimationClock(){
   lastTime = 0;       // forces step() to treat next frame as fresh
-  dtSmooth = 16.7;    // reset smoothing baseline
+  dtSmooth = 1.5;    // reset smoothing baseline
 }
 
 
