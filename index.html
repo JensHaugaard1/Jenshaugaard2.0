@@ -25,6 +25,16 @@
 
   gtag('config', 'G-1CNJGBWHP1');
 </script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+
   <style>
     :root{
   --thumb-scale: .58;    
@@ -261,12 +271,34 @@ display: none !important;
 
 
    /* ===== FORCE OLD OVERLAY LOOK (put this LAST in the CSS) ===== */
+
+/* 3D canvas behind the overlay text */
+#overlay3d{
+  position:absolute;
+  inset:0;
+  z-index:0;            /* behind overlay text */
+  pointer-events:none;  /* keeps links clickable */
+}
+
+#overlay .overlay-content{
+  position:relative;
+  z-index:1;            /* above the canvas */
+}
+
+@media (max-width:800px){
+#overlay3d{
+  display: none;
+
+}
+}
+
+
 #overlay{
   position:fixed;
   inset:0;
   height:100svh;
-  background:rgba(0,0,0,.9);
-  backdrop-filter:blur(10px);
+  background:rgba(15,15,15);
+  backdrop-filter: blur(100px);
   z-index:99;
   display:flex;
   align-items:center;
@@ -286,7 +318,7 @@ display: none !important;
   padding:20px;
   box-sizing:border-box;
   display:grid;
-  grid-template-columns:1fr 1fr 2fr;
+  grid-template-columns: 0fr 1fr 2fr;
   align-items:center;
   gap:24px;
   font-size:14px;
@@ -400,7 +432,12 @@ body.menu-open{
 
 
   <!-- Overlay -->
+
+
+  
   <div id="overlay" aria-hidden="true">
+    <div id="overlay3d" aria-hidden="true"></div>
+
     <div class="overlay-content">
       <p style="text-align:left"><a href="https://www.instagram.com/jenshaugaaard">@jenshaugaaard</a></p>
       <p style="text-align:center"><a href="mailto:hello@jenshaugaard.com">hello@jenshaugaard.com</a></p>
@@ -1112,6 +1149,147 @@ document.addEventListener('DOMContentLoaded', boot);
     "addressCountry": "DK"
   }
 }
+</script>
+<script type="module">
+  import * as THREE from "three";
+  import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+
+  const overlay = document.getElementById("overlay");
+  const container = document.getElementById("overlay3d");
+
+  if (!overlay || !container) {
+    console.warn("Missing #overlay or #overlay3d");
+  }
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.setClearAlpha(0); // transparent, uses overlay background
+  container.appendChild(renderer.domElement);
+
+  // Scene / Camera (your current perspective; can be swapped to ortho later)
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    1000
+  );
+
+  // Light (wireframe doesn't need it, but harmless)
+  scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+
+  // Model root
+  const modelRoot = new THREE.Group();
+  scene.add(modelRoot);
+
+  // Cursor rotation targets
+  const MAX_Y = Math.PI * 0.3;
+  const MAX_X = Math.PI * 0.12; // less sensitive vertical
+  let targetRotX = 0, targetRotY = 0;
+
+  window.addEventListener("pointermove", (e) => {
+    // Only react when overlay is open
+    if (!overlay.classList.contains("active")) return;
+
+    const nx = (e.clientX / window.innerWidth) * 2 - 1;
+    const ny = (e.clientY / window.innerHeight) * 2 - 1;
+
+    targetRotY = nx * MAX_Y;
+    targetRotX = ny * MAX_X; // y inverted as requested
+  });
+
+  function damp(current, target, lambda, dt) {
+    return THREE.MathUtils.damp(current, target, lambda, dt);
+  }
+
+  function centerAndFrame(object3d) {
+    const box = new THREE.Box3().setFromObject(object3d);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    // Center
+    object3d.position.sub(center);
+
+    // Scale to fit (you can tweak targetSize)
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const targetSize = 1.2;
+    const scale = targetSize / maxDim;
+    object3d.scale.setScalar(scale);
+
+    // Camera distance
+    const scaledBox = new THREE.Box3().setFromObject(object3d);
+    const scaledSize = scaledBox.getSize(new THREE.Vector3());
+    const radius = 0.5 * Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
+
+    const fov = THREE.MathUtils.degToRad(camera.fov);
+    const dist = radius / Math.sin(fov / 2);
+
+    camera.position.set(0, Math.max(0.2, scaledSize.y * 0.25), dist * 1.05);
+    camera.lookAt(0, 0, 0);
+  }
+
+  // Loader (Draco optional)
+  const loader = new GLTFLoader();
+  const draco = new DRACOLoader();
+  draco.setDecoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/");
+  loader.setDRACOLoader(draco);
+
+  loader.load(
+    "./LOGO.glb",
+    (gltf) => {
+      const model = gltf.scene || gltf.scenes?.[0];
+      modelRoot.add(model);
+
+modelRoot.scale.setScalar(0.3);
+
+      // Wireframe
+      model.traverse((obj) => {
+        if (obj.isMesh) {
+          obj.material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.9
+          });
+        }
+      });
+
+      centerAndFrame(model);
+    },
+    undefined,
+    (err) => console.error("Failed to load LOGO.glb:", err)
+  );
+
+  // Resize
+  function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  window.addEventListener("resize", onResize);
+  onResize();
+
+  // Animate (render ONLY when overlay is open)
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (!overlay.classList.contains("active")) return;
+
+    const dt = clock.getDelta();
+    modelRoot.rotation.y = damp(modelRoot.rotation.y, targetRotY, 10, dt);
+    modelRoot.rotation.x = damp(modelRoot.rotation.x, targetRotX, 10, dt);
+
+    renderer.render(scene, camera);
+  }
+  animate();
 </script>
 
 
