@@ -170,10 +170,10 @@
     /* Floating label next to the menu icon */
 #menuLabel{
   position: absolute;
-  top: 20px;                /* align with your icon */
+  top: 21px;                /* align with your icon */
   left: 18px;
   transform: translate(32px, 1px);  /* offset to the right of the icon */
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
   letter-spacing: .01em;
 
@@ -210,7 +210,7 @@ body.menu-open #menuLabel::after { content: 'CLOSE'; }
 
   mix-blend-mode:difference;
 
-  pointer-events:none;       /* ← completely static */
+       /* ← completely static */
   user-select:none;
   -webkit-user-drag:none;
 
@@ -245,25 +245,22 @@ display: none !important;
 
   
 
-  /* Static bottom line */
 #bottomLine{
   position: fixed;
   left: 50%;
-  bottom: -2px;                /* adjust if needed */
+  bottom: -2px;
   transform: translateX(-50%);
 
-  height: 22px;               /* or width-based if your SVG prefers */
-  width: auto;
+  width: 2px;     /* adjust */
+  height: 20px;
 
-  z-index: 4;                 /* below rail (z=5), above hero */
+  background: #a0a0a0; /* ✅ CHANGE COLOR HERE */
 
-  mix-blend-mode: difference;
+  -webkit-mask: url("/LINE.svg") no-repeat center / contain;
+          mask: url("/LINE.svg") no-repeat center / contain;
 
+  z-index: 2;     /* TEMP: make it impossible to hide */
   pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-
-  display: block;
 }
 
 
@@ -297,8 +294,8 @@ display: none !important;
   position:fixed;
   inset:0;
   height:100svh;
-  background:rgba(15,15,15);
-  backdrop-filter: blur(100px);
+  background:rgba(10,10,10);
+  backdrop-filter: blur(10px);
   z-index:99;
   display:flex;
   align-items:center;
@@ -424,10 +421,13 @@ body.menu-open{
   <span id="menuLabel" aria-hidden="true"></span>
 
   <!-- Static logo (top right) -->
-<img src="LOGO.svg" id="logoStatic" alt="Jens Haugaard logo">
+   <a href="/" id="logoLink" aria-label="Go to homepage">
+  <img src="LOGO.svg" id="logoStatic" alt="Jens Haugaard logo">
+</a>
 
-<!-- Static bottom line -->
-<img src="LINE.svg" id="bottomLine" alt="">
+
+<div id="bottomLine" aria-hidden="true"></div>
+
 
 
 
@@ -698,7 +698,7 @@ updateHero(0);
       return idx;
     }
 
-    const START_OFFSET_PX = 40; // try -2, -4, +2 etc.
+    const START_OFFSET_PX = 30; // try -2, -4, +2 etc.
 
 function centerOnIndex(i){
   const thumbW =
