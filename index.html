@@ -170,10 +170,10 @@
     /* Floating label next to the menu icon */
 #menuLabel{
   position: absolute;
-  top: 19px;                /* align with your icon */
+  top: 20px;                /* align with your icon */
   left: 18px;
   transform: translate(32px, 1px);  /* offset to the right of the icon */
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
   letter-spacing: .01em;
 
@@ -187,8 +187,8 @@
 }
 
 /* Text: info by default, close when menu is open */
-#menuLabel::after { content: 'info'; }
-body.menu-open #menuLabel::after { content: 'close'; }
+#menuLabel::after { content: 'INFO'; }
+body.menu-open #menuLabel::after { content: 'CLOSE'; }
 
 /* Show label on hover/focus of icon or hit area */
 #menuToggle:hover ~ #menuLabel,
@@ -233,7 +233,7 @@ body.menu-open #menuLabel::after { content: 'close'; }
   left:16px;
    }
 #menuLabel{
-     top: 20px;                /* align with your icon */
+     top: 21px;                /* align with your icon */
   left: 16px;
   }
 #bottomLine{
@@ -737,7 +737,7 @@ function centerOnIndex(i){
 const countEl = caption.querySelector('.caption-count');
 const titleEl = caption.querySelector('.caption-title');
 
-countEl.textContent = `${i + 1} / ${images.length}`;
+countEl.textContent = `(${i + 1} / ${images.length})`;
 titleEl.textContent = item.title || '';
 
       
