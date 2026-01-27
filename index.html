@@ -47,6 +47,10 @@
   --hero-h: 70svh;
   --speed: 0.035;
   --gap: 0;
+
+  --overlay-font: "fragment mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+
 }
 
 
@@ -167,36 +171,28 @@
       cursor:pointer; z-index:111 !important; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     }
 
-    /* Floating label next to the menu icon */
-#menuLabel{
-  position: absolute;
-  top: 21px;                /* align with your icon */
-  left: 18px;
-  transform: translate(32px, 1px);  /* offset to the right of the icon */
-  font-size: 12px;
-  line-height: 1;
-  letter-spacing: .01em;
-
-  color: #fff;
-  mix-blend-mode: difference;
-  pointer-events: none;     /* never blocks clicks */
-  opacity: 0;
-  transition: opacity .4s ease;
-
-  z-index: 103;             /* above overlay and hit area */
+ @keyframes menuToggleWiggle{
+  0%   { transform: rotate(0deg); }
+  33%  { transform: rotate(5deg); }
+  66%  { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
 }
 
-/* Text: info by default, close when menu is open */
-#menuLabel::after { content: 'INFO'; }
-body.menu-open #menuLabel::after { content: 'CLOSE'; }
 
-/* Show label on hover/focus of icon or hit area */
-#menuToggle:hover ~ #menuLabel,
-#menuHit:hover ~ #menuLabel,
-#menuToggle:focus-visible ~ #menuLabel,
-#menuHit:focus-visible ~ #menuLabel{
-  opacity: 1;
+
+/* Wiggle class (only when menu is NOT open) */
+#menuToggle.wiggle:not(.rotated){
+  animation: menuToggleWiggle 220ms ease-out;
 }
+
+/* keep your open state */
+#menuToggle.rotated{
+  transform: rotate(45deg);
+  animation: none;
+}
+
+
+
 
 /* Static logo (top right) */
 #logoStatic{
@@ -266,27 +262,8 @@ display: none !important;
 
 
 
-   /* ===== FORCE OLD OVERLAY LOOK (put this LAST in the CSS) ===== */
 
-/* 3D canvas behind the overlay text */
-#overlay3d{
-  position:absolute;
-  inset:0;
-  z-index:0;            /* behind overlay text */
-  pointer-events:none;  /* keeps links clickable */
-}
 
-#overlay .overlay-content{
-  position:relative;
-  z-index:1;            /* above the canvas */
-}
-
-@media (max-width:800px){
-#overlay3d{
-  display: none;
-
-}
-}
 
 
 #overlay{
@@ -300,35 +277,64 @@ display: none !important;
   align-items:center;
   justify-content:center;
   color:#fff;
-  font-family:"neue-haas-grotesk-display", sans-serif;
   opacity:0;
   pointer-events:none;
   transition:opacity .4s ease;
 }
+
+#overlay{
+  font-family: var(--overlay-font);
+  font-size: 14px;
+  letter-spacing: -0.05em; /* -5% */
+  font-weight: 400;
+  color: #fff;
+}
+
+/* subtle stroke */
+#overlay *{
+  -webkit-text-stroke: 0.2px rgba(255,255,255,0.6);
+  text-rendering: geometricPrecision;
+}
+
+
 #overlay.active{ opacity:1; pointer-events:all; }
 
-.overlay-content{
+.overlay-grid{
   position:absolute;
-  width:100%;
-  height:100%;
-  padding:20px;
-  box-sizing:border-box;
+  inset:0;
+  padding:24px;
   display:grid;
-  grid-template-columns: 0fr 1fr 2fr;
+  grid-template-columns: 1fr 1fr 4fr;
+  column-gap:42px;
   align-items:center;
-  gap:24px;
-  font-size:14px;
-  font-weight:500;
 }
 
-@media (max-width:800px){
-  .overlay-content{
-    grid-template-columns:1fr 1fr 1fr;
-    text-align:left;
-    font-size:12px;
-    line-height:1.2;
-  }
+/* left labels */
+.overlay-left{
+  text-align:left;
+  opacity:.85;
 }
+
+/* center values */
+.overlay-center{
+  text-align:right;
+}
+
+/* right description */
+.overlay-right{
+  text-align:left;
+  max-width:420px;
+}
+
+/* footer */
+.overlay-footer{
+  position:absolute;
+  left:24px;
+  bottom:18px;
+  font-size:12px;
+  opacity:.6;
+}
+
 
 .overlay-bottom{
   position:absolute;
@@ -338,34 +344,99 @@ display: none !important;
   line-height:1.2;
   opacity:.95;
 }
+
+
 @media (max-width:800px){
-  .overlay-bottom{ font-size:12px; }
+
+  /* Make overlay grid a positioning context */
+  .overlay-grid{
+    position: absolute;
+    inset: 0;
+    padding: 28px 22px !important;
+    display: block !important;     /* kill the desktop grid on mobile */
+  }
+
+  /* CONTACTS: left labels */
+  .overlay-left{
+    position: absolute;
+    left: 22px;
+    top: 48vh;                    
+    opacity: .85;
+    line-height: 1.1;              
+  }
+
+  /* CONTACTS: right values */
+  .overlay-center{
+    position: absolute;
+    right: 22px;
+    top: 48vh;                  
+    text-align: right;
+    line-height: 1.1;            
+  }
+
+  .overlay-center > div{ white-space: nowrap; }
+
+  /* BIO: bottom-left */
+  .overlay-right{
+    position: absolute;
+    left: 22px;
+    bottom: 48px;             
+    line-height: 1.25;
+    text-align: left;
+  }
+
+  /* FOOTER: bottom-left */
+  .overlay-footer{
+    position: absolute;
+    left: 22px !important;
+    bottom: 18px !important;
+    font-size: 12px;
+    opacity: .30;
+  }
 }
 
+
 /* IMPORTANT: hard-override browser default link styling inside overlay */
+/* Base underline (hidden) */
+/* Remove any old background-image underline rules first */
 #overlay a,
 #overlay a:visited{
   color:#fff !important;
   text-decoration:none !important;
-  -webkit-text-decoration:none !important;
+  background: none !important;
+  position: relative;
+  display: inline-block; /* important for underline sizing */
 }
 
-/* your underline-on-hover effect */
-#overlay .overlay-content a,
-#overlay .overlay-bottom a{
-  background-image:linear-gradient(currentColor,currentColor);
-  background-size:0% 1px;
-  background-position:0 100%;
-  background-repeat:no-repeat;
-  transition:background-size .35s cubic-bezier(.37,.01,.65,.99);
+/* The underline */
+#overlay a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-.01rem;           /* adjust underline distance */
+  height:1px;
+  background: currentColor;
+
+  transform: scaleX(0);
+  transform-origin: right;  /* default: collapses towards right */
+  transition: transform .35s cubic-bezier(.37,.01,.65,.99);
 }
-#overlay.active .overlay-content a:hover,
-#overlay.active .overlay-bottom a:hover,
-#overlay.active .overlay-content a:focus-visible,
-#overlay.active .overlay-bottom a:focus-visible{
-  background-size:100% 1px;
-  outline:none;
+
+/* Hover: draw from left */
+#overlay.active a:hover::after,
+#overlay.active a:focus-visible::after{
+  transform: scaleX(1);
+  transform-origin: left;   /* expands from left */
 }
+
+/* Leave: collapse to the right */
+#overlay.active a:not(:hover)::after{
+  transform: scaleX(0);
+  transform-origin: right;
+}
+
+
 
 
     /* Preloader */
@@ -437,17 +508,49 @@ body.menu-open{
   <div id="overlay" aria-hidden="true">
     <div id="overlay3d" aria-hidden="true"></div>
 
-    <div class="overlay-content">
-      <p style="text-align:left"><a href="https://www.instagram.com/jenshaugaaard">@jenshaugaaard</a></p>
-      <p style="text-align:center"><a href="mailto:hello@jenshaugaard.com">hello@jenshaugaard.com</a></p>
-      <p style="text-align:right">+45 53 64 84 44</p>
-      <div class="overlay-bottom">
-        <p>PHOTOGRAPHER AND MULTIDISCIPLINARY<br>
-        CREATIVE EXPLORING VISUAL MEDIUMS.<br>
-        BASED IN COPENHAGEN. CURRENTLY AT <a href="https://www.ducor.dk">DUCOR</a><br>
-        ©2026 JENS HAUGAARD</p>
-      </div>
-    </div>
+    <div class="overlay-content overlay-grid">
+
+      
+  <!-- LEFT COLUMN -->
+  <div class="overlay-left">
+    <div>TEL</div>
+    <div>EMAIL</div>
+    <div>INSTA</div>
+  </div>
+
+<!-- CENTER COLUMN -->
+<div class="overlay-center">
+  <div>
+    <a href="tel:+4553648444">+45 536 484 44</a>
+  </div>
+  <div>
+    <a href="mailto:hello@jenshaugaard.com">HELLO(AT)JENSHAUGAARD.COM</a>
+  </div>
+  <div>
+    <a href="https://www.instagram.com/jenshaugaaard" target="_blank" rel="noopener">
+      JENSHAUGAAARD
+    </a>
+  </div>
+</div>
+
+<!-- RIGHT COLUMN -->
+<div class="overlay-right">
+  <div>
+    PHOTOGRAPHER AND MULTIDISCIPLINARY<br>
+    CREATIVE EXPLORING VISUAL MEDIUMS.<br>
+    BASED IN COPENHAGEN. CURRENTLY AT
+    <a href="https://www.ducor.dk" target="_blank" rel="noopener">DUCOR</a>
+  </div>
+</div>
+
+
+  <!-- FOOTER -->
+  <div class="overlay-footer">
+    COPYRIGHT 2026 JENS HAUGAARD
+  </div>
+
+</div>
+
   </div>
 
   <main>
@@ -587,6 +690,29 @@ function hapticTick(){
     const overlay   = $('#overlay');
     const pre       = $('#preloader-overlay');
 
+    // Wiggle the menu icon on hover/focus (works even when hovering the hit area)
+function triggerWiggle(){
+  if(menuIcon.classList.contains('rotated')) return; // don't wiggle when open
+  menuIcon.classList.remove('wiggle'); // restart animation
+  // force reflow so animation re-triggers reliably
+  void menuIcon.offsetWidth;
+  menuIcon.classList.add('wiggle');
+}
+
+// Hover / pointer
+menuIcon.addEventListener('pointerenter', triggerWiggle);
+menuHit.addEventListener('pointerenter', triggerWiggle);
+
+// Keyboard focus
+menuIcon.addEventListener('focusin', triggerWiggle);
+menuHit.addEventListener('focusin', triggerWiggle);
+
+// Optional: clean up class after animation ends
+menuIcon.addEventListener('animationend', () => {
+  menuIcon.classList.remove('wiggle');
+});
+
+    
     /* =========================
        INITIAL HERO
     ========================= */
@@ -1149,154 +1275,7 @@ document.addEventListener('DOMContentLoaded', boot);
   }
 }
 </script>
-<script type="module">
-  import * as THREE from "three";
-  import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-  import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
-  const overlay = document.getElementById("overlay");
-  const container = document.getElementById("overlay3d");
-
-  if (!overlay || !container) {
-    console.warn("Missing #overlay or #overlay3d");
-  }
-
-  // Renderer
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
-  renderer.setClearAlpha(0); // transparent, uses overlay background
-  container.appendChild(renderer.domElement);
-
-  // Scene / Camera (your current perspective; can be swapped to ortho later)
-  const scene = new THREE.Scene();
-
-  const camera = new THREE.PerspectiveCamera(
-    30,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    1000
-  );
-
-  // Light (wireframe doesn't need it, but harmless)
-  scene.add(new THREE.AmbientLight(0xffffff, 0.25));
-
-  // Model root
-  const modelRoot = new THREE.Group();
-  scene.add(modelRoot);
-
-  // Cursor rotation targets
-  const MAX_Y = Math.PI * 0.3;
-  const MAX_X = Math.PI * 0.12; // less sensitive vertical
-  let targetRotX = 0, targetRotY = 0;
-  const VERTICAL_CENTER_OFFSET = window.innerHeight * 0.17; 
-
-
-
-
-  window.addEventListener("pointermove", (e) => {
-  if (!overlay.classList.contains("active")) return;
-
-  const cx = e.clientX;
-  const cy = e.clientY - VERTICAL_CENTER_OFFSET;
-
-  const nx = (cx / window.innerWidth) * 2 - 1;
-  const ny = (cy / window.innerHeight) * 2 - 1;
-
-  targetRotY = nx * MAX_Y;
-  targetRotX = ny * MAX_X;
-});
-
-
-  function damp(current, target, lambda, dt) {
-    return THREE.MathUtils.damp(current, target, lambda, dt);
-  }
-
-  function centerAndFrame(object3d) {
-    const box = new THREE.Box3().setFromObject(object3d);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-
-    // Center
-    object3d.position.sub(center);
-
-    // Scale to fit (you can tweak targetSize)
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const targetSize = 1.2;
-    const scale = targetSize / maxDim;
-    object3d.scale.setScalar(scale);
-
-    // Camera distance
-    const scaledBox = new THREE.Box3().setFromObject(object3d);
-    const scaledSize = scaledBox.getSize(new THREE.Vector3());
-    const radius = 0.5 * Math.max(scaledSize.x, scaledSize.y, scaledSize.z);
-
-    const fov = THREE.MathUtils.degToRad(camera.fov);
-    const dist = radius / Math.sin(fov / 2);
-
-    camera.position.set(0, Math.max(0.2, scaledSize.y * 0.25), dist * 1.2);
-    camera.lookAt(0, 0, 0);
-  }
-
-  // Loader (Draco optional)
-  const loader = new GLTFLoader();
-  const draco = new DRACOLoader();
-  draco.setDecoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/");
-  loader.setDRACOLoader(draco);
-
-  loader.load(
-    "./LOGO.glb",
-    (gltf) => {
-      const model = gltf.scene || gltf.scenes?.[0];
-      modelRoot.add(model);
-
-modelRoot.scale.setScalar(0.3);
-
-      // Wireframe
-      model.traverse((obj) => {
-        if (obj.isMesh) {
-          obj.material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.9
-          });
-        }
-      });
-
-      centerAndFrame(model);
-    },
-    undefined,
-    (err) => console.error("Failed to load LOGO.glb:", err)
-  );
-
-  // Resize
-  function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-  window.addEventListener("resize", onResize);
-  onResize();
-
-  // Animate (render ONLY when overlay is open)
-  const clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-
-    if (!overlay.classList.contains("active")) return;
-
-    const dt = clock.getDelta();
-    modelRoot.rotation.y = damp(modelRoot.rotation.y, targetRotY, 10, dt);
-    modelRoot.rotation.x = damp(modelRoot.rotation.x, targetRotX, 10, dt);
-
-    renderer.render(scene, camera);
-  }
-  animate();
-</script>
 
 
 </body>
