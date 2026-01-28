@@ -703,6 +703,17 @@ function triggerWiggle(){
   menuIcon.classList.add('wiggle');
 }
 
+function stopWiggleNow(){
+  // remove wiggle class
+  menuIcon.classList.remove('wiggle');
+
+  // hard-cancel any running animation so transform is free
+  menuIcon.style.animation = 'none';
+  void menuIcon.offsetWidth;       // force reflow
+  menuIcon.style.animation = '';    // restore
+}
+
+
 // Hover / pointer
 menuIcon.addEventListener('pointerenter', triggerWiggle);
 menuHit.addEventListener('pointerenter', triggerWiggle);
@@ -947,48 +958,60 @@ function scheduleHide(ms){
     }
   }, ms);
 }
-
 // =========================
-// Mobile link delay (0.3s)
+// Mobile link delay (overlay only)
 // =========================
-const LINK_DELAY_MS = 300;
-const isMobile = window.matchMedia('(max-width: 800px)').matches;
+const LINK_DELAY_MS = 400;
 
-if (isMobile) {
-  document.addEventListener('click', (e) => {
-    // Find the clicked <a>
+function isMobileNow() {
+  return window.matchMedia('(max-width: 800px)').matches;
+}
+
+function shouldDelayLink(a, e) {
+  if (!a) return false;
+
+  // only delay links inside the overlay
+  if (!a.closest('#overlay')) return false;
+
+  // ignore new tabs / downloads / modified clicks
+  if (a.target === '_blank' || a.hasAttribute('download')) return false;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return false;
+
+  const href = a.getAttribute('href');
+  if (!href) return false;
+
+  // ignore anchors + special schemes
+  if (href.startsWith('#')) return false;
+  if (href.startsWith('tel:') || href.startsWith('mailto:')) return false;
+
+  return true;
+}
+
+// Use pointerup for better mobile reliability than click
+document.addEventListener(
+  'pointerup',
+  (e) => {
+    if (!isMobileNow()) return;
+
     const a = e.target.closest('a');
-    if (!a) return;
-
-    // Ignore: new tabs / downloads / modified clicks
-    if (a.target === '_blank' || a.hasAttribute('download')) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!shouldDelayLink(a, e)) return;
 
     const href = a.getAttribute('href');
-    if (!href) return;
 
-    // Ignore anchors + special schemes
-    if (href.startsWith('#')) return;
-    if (href.startsWith('tel:') || href.startsWith('mailto:')) return;
-
-    // Let the browser handle external if you want (optional)
-    // If you also want to delay external links, remove this block:
-    // try {
-    //   const u = new URL(href, location.href);
-    //   if (u.origin !== location.origin) return;
-    // } catch (_) {}
-
+    // Prevent immediate navigation
     e.preventDefault();
+    e.stopPropagation();
 
     // Optional: close overlay instantly so it feels responsive
-    // (only if you want this behavior)
-    // if (overlay?.classList.contains('active')) setMenuState(false);
+    if (overlay?.classList.contains('active')) setMenuState(false);
 
     setTimeout(() => {
-      window.location.href = href;
+      window.location.assign(href);
     }, LINK_DELAY_MS);
-  }, { capture: true });
-}
+  },
+  { capture: true }
+);
+
 
 
     // Pointer handlers
@@ -1168,11 +1191,15 @@ function resetAnimationClock(){
 
 
     function toggleMenu(e){
-      e?.stopPropagation?.();
-      e?.preventDefault?.();
-      const open = !overlay.classList.contains('active');
-      setMenuState(open);
-    }
+  e?.stopPropagation?.();
+  e?.preventDefault?.();
+
+  stopWiggleNow(); 
+
+  const open = !overlay.classList.contains('active');
+  setMenuState(open);
+}
+
 
     // Bind menu interactions (icon + enlarged hit area)
     ['click'].forEach(evt=>{
