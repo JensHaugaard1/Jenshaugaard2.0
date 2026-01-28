@@ -11,7 +11,7 @@
   <meta property="og:image" content="https://www.jenshaugaard.com/og.jpg">
   <meta name="theme-color" content="#ffffff">
   <link rel="canonical" href="https://www.jenshaugaard.com/">
-  <title>Jens Haugaard Photographer & Multidisciplinary Creative</title>
+  <title>Jens Haugaard Photographer / Creative</title>
   <link rel="icon" type="image/x-icon" href="/FAVICON_2.png">
   <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -174,19 +174,21 @@
       cursor:pointer; z-index:111 !important; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     }
 
+      @media (min-width:800px){
  @keyframes menuToggleWiggle{
   0%   { transform: rotate(0deg); }
   33%  { transform: rotate(5deg); }
   66%  { transform: rotate(-5deg); }
   100% { transform: rotate(0deg); }
 }
-
-
-
 /* Wiggle class (only when menu is NOT open) */
 #menuToggle.wiggle:not(.rotated){
   animation: menuToggleWiggle 220ms ease-out;
 }
+      }
+
+
+
 
 /* keep your open state */
 #menuToggle.rotated{
@@ -274,7 +276,7 @@ display: none !important;
   inset:0;
   height:100svh;
   background:rgba(0,0,0, 0.93);
-  backdrop-filter: blur(7px);
+  backdrop-filter: blur(8px);
   z-index:99;
   display:flex;
   align-items:center;
@@ -295,7 +297,7 @@ display: none !important;
 
 /* subtle stroke */
 #overlay *{
-  -webkit-text-stroke: 0.2px rgba(255,255,255,0.6);
+  -webkit-text-stroke: 0.2px rgb(255, 255, 255);
   text-rendering: geometricPrecision;
 }
 
@@ -308,14 +310,13 @@ display: none !important;
   padding:24px;
   display:grid;
   grid-template-columns: 1fr 1fr 4fr;
-  column-gap:42px;
+  column-gap: 32px;
   align-items:center;
 }
 
 /* left labels */
 .overlay-left{
   text-align:left;
-  opacity:.85;
 }
 
 /* center values */
@@ -326,7 +327,7 @@ display: none !important;
 /* right description */
 .overlay-right{
   text-align:left;
-  max-width:420px;
+  line-height:1.2;
 }
 
 /* footer */
@@ -335,7 +336,7 @@ display: none !important;
   left:24px;
   bottom:18px;
   font-size:12px;
-  opacity:.6;
+  opacity:.3;
 }
 
 
@@ -344,8 +345,7 @@ display: none !important;
   left:20px;
   right:24px;
   bottom:16px;
-  line-height:1.2;
-  opacity:.95;
+  line-height:1.1;
 }
 
 
@@ -364,8 +364,8 @@ display: none !important;
     position: absolute;
     left: 22px;
     top: 42vh;                    
-    opacity: .85;
-    line-height: 1.1;              
+    line-height: 1.1; 
+    font-size: 12px;             
   }
 
   /* CONTACTS: right values */
@@ -374,7 +374,8 @@ display: none !important;
     right: 22px;
     top: 42vh;                  
     text-align: right;
-    line-height: 1.1;            
+    line-height: 1.1;          
+    font-size: 12px;  
   }
 
   .overlay-center > div{ white-space: nowrap; }
@@ -384,8 +385,9 @@ display: none !important;
     position: absolute;
     left: 22px;
     bottom: 48px;             
-    line-height: 1.25;
+    line-height: 1.1;
     text-align: left;
+    font-size: 12px;
   }
 
   /* FOOTER: bottom-left */
@@ -423,7 +425,7 @@ display: none !important;
 
   transform: scaleX(0);
   transform-origin: right;  /* default: collapses towards right */
-  transition: transform .35s cubic-bezier(.37,.01,.65,.99);
+  transition: transform .35s cubic-bezier(0,-0.03,.28,1);
 }
 
 /* Hover: draw from left */
@@ -518,7 +520,7 @@ body.menu-open{
   <div class="overlay-left">
     <div>TEL</div>
     <div>EMAIL</div>
-    <div>INSTA</div>
+    <div>INSTAGRAM</div>
   </div>
 
 <!-- CENTER COLUMN -->
