@@ -404,43 +404,42 @@ display: none !important;
 /* IMPORTANT: hard-override browser default link styling inside overlay */
 /* Base underline (hidden) */
 /* Remove any old background-image underline rules first */
+/* === Overlay link box highlight (difference mode) === */
+
+/* === Overlay link filled box (difference mode) === */
 #overlay a,
 #overlay a:visited{
-  color:#fff !important;
-  text-decoration:none !important;
-  background: none !important;
   position: relative;
-  display: inline-block; /* important for underline sizing */
+  color: #fff !important;
+  text-decoration: none !important;
+  z-index: 0;
 }
 
-/* The underline */
+/* Filled box */
 #overlay a::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:-.01rem;           /* adjust underline distance */
-  height:1px;
-  background: currentColor;
+  content: "";
+  position: absolute;
+  inset: 1px -1.5px;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
 
-  transform: scaleX(0);
-  transform-origin: right;  /* default: collapses towards right */
-  transition: transform .35s cubic-bezier(0,-0.03,.28,1);
+  opacity: 0;                 
+  transform: scaleX(0);     
+  transform-origin: right;
+
+  transition:
+    opacity .12s ease,      
+    transform .25s cubic-bezier(0,-0.03,.28,1)
 }
 
-/* Hover: draw from left */
+/* Hover/focus: show + grow from left */
 #overlay.active a:hover::after,
 #overlay.active a:focus-visible::after{
+  opacity: 1;
   transform: scaleX(1);
-  transform-origin: left;   /* expands from left */
+  transform-origin: left;
 }
-
-/* Leave: collapse to the right */
-#overlay.active a:not(:hover)::after{
-  transform: scaleX(0);
-  transform-origin: right;
-}
-
 
 
 
@@ -949,6 +948,47 @@ function scheduleHide(ms){
   }, ms);
 }
 
+// =========================
+// Mobile link delay (0.3s)
+// =========================
+const LINK_DELAY_MS = 300;
+const isMobile = window.matchMedia('(max-width: 800px)').matches;
+
+if (isMobile) {
+  document.addEventListener('click', (e) => {
+    // Find the clicked <a>
+    const a = e.target.closest('a');
+    if (!a) return;
+
+    // Ignore: new tabs / downloads / modified clicks
+    if (a.target === '_blank' || a.hasAttribute('download')) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    const href = a.getAttribute('href');
+    if (!href) return;
+
+    // Ignore anchors + special schemes
+    if (href.startsWith('#')) return;
+    if (href.startsWith('tel:') || href.startsWith('mailto:')) return;
+
+    // Let the browser handle external if you want (optional)
+    // If you also want to delay external links, remove this block:
+    // try {
+    //   const u = new URL(href, location.href);
+    //   if (u.origin !== location.origin) return;
+    // } catch (_) {}
+
+    e.preventDefault();
+
+    // Optional: close overlay instantly so it feels responsive
+    // (only if you want this behavior)
+    // if (overlay?.classList.contains('active')) setMenuState(false);
+
+    setTimeout(() => {
+      window.location.href = href;
+    }, LINK_DELAY_MS);
+  }, { capture: true });
+}
 
 
     // Pointer handlers
