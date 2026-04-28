@@ -674,12 +674,23 @@
 
       b.appendChild(img);
 
-      if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
-        b.addEventListener('mouseenter', () => {
-          const hoverIdx = parseInt(b.dataset.index, 10);
-          if(!isNaN(hoverIdx)) updateHero(hoverIdx);
-        });
-      }
+          if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+      b.addEventListener('mouseenter', () => {
+        if(isDragging) return;                          // skip if dragging
+        const hoverIdx = parseInt(b.dataset.index, 10);
+        if(!isNaN(hoverIdx)){
+          isHoveringThumb = true;
+          hoveredHeroIdx = hoverIdx;
+          updateHero(hoverIdx);
+          lastHeroRendered = hoverIdx;
+          currentIdx = hoverIdx;
+        }
+      });
+
+      b.addEventListener('mouseleave', () => {
+        isHoveringThumb = false;
+      });
+    }
 
       set.appendChild(b);
     });
@@ -795,6 +806,8 @@
   let uiLocked = false;
   let inertial = false;
   let preloaderActive = true; // lock carousel until preloader fades out
+  let isHoveringThumb = false;    
+  let hoveredHeroIdx = -1;         
   let lastPX = 0;
   let vel = AUTO_SPEED * AUTO_DIR;
   let lastMoveTS = 0;
@@ -885,6 +898,7 @@
   function startDrag(e){
     if(uiLocked || preloaderActive) { e?.preventDefault?.(); return; }
     if(e.isPrimary === false) return;
+    isHoveringThumb = false;
     tx = getComputedTx();
     showRail();
     document.body.classList.add('dragging');
@@ -957,27 +971,30 @@
       vel = 0;
     }
 
-    const idx = computeActiveIndex();
+      const idx = computeActiveIndex();
     const w = (setWidth / images.length) || (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--thumb-w')) || 70);
     const fastThreshold = w / 250;
     const isFast = Math.abs(vel) > fastThreshold;
 
     if(idx !== currentIdx){ currentIdx = idx; idxStableSince = now; }
 
-    if(isFast || (lastHeroRendered !== -1 && Math.abs(currentIdx - lastHeroRendered) >= 1)){
-      if(currentIdx !== lastHeroRendered){
-        updateHero(currentIdx);
-        lastHeroRendered = currentIdx;
-        if(isDragging) hapticTick();
-        lastHeroCheck = now;
-      }
-    } else {
-      const interval = (isDragging || inertial) ? heroActiveInterval : heroIdleInterval;
-      if(now - lastHeroCheck > interval && now - idxStableSince > 80 && currentIdx !== lastHeroRendered){
-        updateHero(currentIdx);
-        lastHeroRendered = currentIdx;
-        if(isDragging) hapticTick();
-        lastHeroCheck = now;
+    // Skip hero updates while user is hovering a thumb (unless they start dragging)
+    if(!isHoveringThumb || isDragging){
+      if(isFast || (lastHeroRendered !== -1 && Math.abs(currentIdx - lastHeroRendered) >= 1)){
+        if(currentIdx !== lastHeroRendered){
+          updateHero(currentIdx);
+          lastHeroRendered = currentIdx;
+          if(isDragging) hapticTick();
+          lastHeroCheck = now;
+        }
+      } else {
+        const interval = (isDragging || inertial) ? heroActiveInterval : heroIdleInterval;
+        if(now - lastHeroCheck > interval && now - idxStableSince > 80 && currentIdx !== lastHeroRendered){
+          updateHero(currentIdx);
+          lastHeroRendered = currentIdx;
+          if(isDragging) hapticTick();
+          lastHeroCheck = now;
+        }
       }
     }
 
