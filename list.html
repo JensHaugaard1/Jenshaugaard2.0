@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Archive of work by Jens Haugaard.">
+  <meta name="theme-color" content="#ffffff">
+  <title>Jens Haugaard — Index</title>
+  <link rel="icon" type="image/x-icon" href="/FAVICON_2.png">
+  <link rel="stylesheet" href="https://use.typekit.net/qyf2jna.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --col-gap: 24px;
+      --row-h: 22px;
+      --pad-x: 24px;
+      --pad-y: 18px;
+      --fade-color: rgba(0,0,0,0.25);
+      --focus-color: #000;
+      --image-max-w: 28vw;
+      --image-max-h: 65svh;
+      --type-size: 12px;
+      --overlay-font: "fragment mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --nav-font: "neue-haas-grotesk-display", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body{
+      margin:0; padding:0;
+      width: 100%; height: 100svh;
+      overflow: hidden;
+      background: #fff; color: #000;
+      font-family: "Fragment Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: var(--type-size);
+      letter-spacing: -.2px;
+      text-transform: uppercase;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+    }
+
+    /* Top-right logo */
+    #logoStatic{
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      width: 45px;
+      height: 20px;
+      z-index: 110;
+      mix-blend-mode: difference;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Top navigation — Neue Haas Grotesk, all black, no highlight */
+    .top-nav{
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 110;
+      display: flex;
+      gap: 28px;
+      font-family: var(--nav-font);
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 20px;
+      align-items: center;
+    }
+
+    .top-nav a,
+    .top-nav button{
+      color: #000;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity .2s ease;
+    }
+
+    .top-nav a:hover,
+    .top-nav button:hover{
+      opacity: 0.9;
+    }
+
+    @media (max-width: 800px){
+      .top-nav{
+        top: 18px;
+        left: 16px;
+        gap: 18px;
+      }
+      #logoStatic{ top: 18px; right: 16px; }
+    }
+
+    /* Main layout */
+    main{
+      position: relative;
+      width: 100%;
+      height: 100svh;
+    }
+
+    /* ============================
+       DESKTOP — scrollable list, cursor-Y focus
+       List occupies left side, image occupies right side.
+       ============================ */
+    .list-wrap{
+      position: absolute;
+      top: 56px;
+      bottom: var(--pad-y);
+      left: 0;
+      width: calc(100% - var(--image-max-w) - var(--pad-x) - 64px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px var(--pad-x);
+      scrollbar-width: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: safe center;
+    }
+    .list-wrap::-webkit-scrollbar{ display: none; }
+
+    .list-track{
+      flex: 0 0 auto;
+      width: 100%;
+    }
+
+    .row{
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.4fr 0.4fr;
+      column-gap: var(--col-gap);
+      align-items: center;
+      height: var(--row-h);
+      padding: 0 0 0 16px;
+      cursor: default;
+      transition: opacity 0.25s ease, color 0.25s ease;
+      color: var(--fade-color);
+    }
+
+    .row::before{
+      content: "+";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+      color: var(--focus-color);
+      transition: opacity 0.25s ease;
+    }
+
+    .row .col{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.25s ease, opacity 0.25s ease;
+    }
+
+    .row .col-job,
+    .row .col-client,
+    .row .col-num,
+    .row .col-year{
+      color: var(--fade-color);
+    }
+
+    .row.is-focus{ color: var(--focus-color); }
+    .row.is-focus::before{ opacity: 1; }
+
+    .row.is-focus .col-job,
+    .row.is-focus .col-client,
+    .row.is-focus .col-num,
+    .row.is-focus .col-year{
+      color: var(--focus-color);
+    }
+
+    .row:not(.is-focus) .col-client,
+    .row:not(.is-focus) .col-num,
+    .row:not(.is-focus) .col-year{
+      opacity: 0;
+    }
+
+    /* Hero image (right on desktop) */
+    .hero{
+      position: absolute;
+      top: 50%;
+      right: var(--pad-x);
+      transform: translateY(-50%);
+      width: var(--image-max-w);
+      max-width: var(--image-max-w);
+      height: var(--image-max-h);
+      max-height: var(--image-max-h);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .hero img{
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ============================
+       MOBILE — image fixed below focus row, list scrolls behind
+       ============================ */
+    @media (max-width: 800px){
+      :root{
+        --row-h: 22px;
+        --type-size: 11px;
+        --pad-x: 18px;
+        --image-max-w: 75vw;
+        --image-max-h: 50svh;
+        --focus-offset: calc(var(--row-h) * 8);
+      }
+
+      html, body{ overflow: hidden; }
+
+      main{
+        display: block;
+        padding: 0;
+        height: 100svh;
+        position: relative;
+      }
+
+      .list-wrap{
+        position: relative;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        width: 100%;
+        height: 100svh;
+        max-height: 100svh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: calc(56px + var(--focus-offset)) var(--pad-x) calc(100svh - 56px - var(--focus-offset) - var(--row-h));
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        z-index: 3;
+
+        display: block;
+
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 56px,
+          rgba(0,0,0,0.15) calc(56px + 8px),
+          rgba(0,0,0,1) calc(56px + var(--focus-offset)),
+          rgba(0,0,0,1) 100%
+        );
+                mask-image: linear-gradient(
+          to bottom,
+          transparent 56px,
+          rgba(0,0,0,0.15) calc(56px + 8px),
+          rgba(0,0,0,1) calc(56px + var(--focus-offset)),
+          rgba(0,0,0,1) 100%
+        );
+      }
+
+      .list-track{
+        flex: initial;
+        width: auto;
+      }
+
+      .row{
+        grid-template-columns: minmax(0,1.5fr) auto minmax(0,1fr) auto;
+        column-gap: 16px;
+        background: transparent;
+      }
+
+      .row .col-year{
+        text-align: right;
+        justify-self: end;
+      }
+
+      /* Image fixed below the focused metadata row.
+         Horizontal position (left + width) is set via JS to flush with
+         columns 2-4 (NUM, CLIENT, YEAR) of the row grid. */
+      .hero{
+        position: fixed;
+        top: calc(56px + var(--focus-offset) + var(--row-h) + 12px);
+        left: var(--pad-x);    /* fallback before JS runs */
+        right: auto;
+        transform: none;
+        width: auto;
+        max-width: none;
+        height: var(--image-max-h);
+        max-height: var(--image-max-h);
+        z-index: 2;
+        justify-content: flex-start;
+        align-items: flex-start;
+        pointer-events: none;
+      }
+
+      .hero img{
+        max-width: 100%;
+        max-height: 100%;
+        margin: 0;
+      }
+    }
+
+    /* ============================
+       OVERLAY (INFO)
+       ============================ */
+    #overlay{
+      position: fixed;
+      inset: 0;
+      height: 100svh;
+      background: rgba(255, 255, 255, 0.93);
+      backdrop-filter: blur(8px);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s ease;
+      font-family: var(--overlay-font);
+      font-size: 14px;
+      letter-spacing: -0.05em;
+      font-weight: 400;
+      text-transform: none;
+    }
+
+    #overlay *{
+      -webkit-text-stroke: 0.1px rgb(0,0,0);
+      text-rendering: geometricPrecision;
+    }
+
+    #overlay.active{ opacity: 1; pointer-events: all; }
+
+    .overlay-grid{
+      position: absolute;
+      inset: 0;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: .5fr 1fr 3fr;
+      column-gap: 24px;
+      align-items: center;
+    }
+
+    .overlay-left{ text-align:left; }
+    .overlay-center{ text-align:left; }
+    .overlay-right{ text-align:left; line-height:1.2; }
+
+    .overlay-footer{
+      position: absolute;
+      left: 24px;
+      bottom: 18px;
+      font-size: 12px;
+      opacity: .3;
+    }
+
+    @media (max-width:800px){
+      .overlay-grid{
+        position: absolute;
+        inset: 0;
+        padding: 28px 18px !important;
+        display: block !important;
+      }
+
+      .overlay-left{
+        position: absolute;
+        left: 18px;
+        top: 42vh;
+        line-height: 1.1;
+        font-size: 12px;
+      }
+
+      .overlay-center{
+        position: absolute;
+        right: 18px;
+        top: 42vh;
+        text-align: right;
+        line-height: 1.1;
+        font-size: 12px;
+      }
+
+      .overlay-center > div{ white-space: nowrap; }
+
+      .overlay-right{
+        position: absolute;
+        left: 18px;
+        bottom: 48px;
+        line-height: 1.1;
+        text-align: left;
+        font-size: 12px;
+      }
+
+      .overlay-footer{
+        position: absolute;
+        left: 18px !important;
+        bottom: 18px !important;
+        font-size: 12px;
+        opacity: .30;
+      }
+    }
+
+    #overlay a,
+    #overlay a:visited{
+      position: relative;
+      color: #000 !important;
+      text-decoration: none !important;
+      z-index: 1;
+      transition: color 0.2s ease;
+    }
+
+    #overlay a::after{
+      content: "";
+      position: absolute;
+      inset: 1px -1.5px;
+      background: #000;
+      pointer-events: none;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: right;
+      z-index: -1;
+      transition:
+        opacity .12s ease,
+        transform .25s cubic-bezier(0,-0.03,.28,1);
+    }
+
+    #overlay.active a:hover,
+    #overlay.active a:hover:visited,
+    #overlay.active a:focus-visible,
+    #overlay.active a:focus-visible:visited{
+      color: #fff !important;
+      -webkit-text-stroke: 0.1px rgb(255,255,255);
+    }
+
+    #overlay.active a:hover::after,
+    #overlay.active a:focus-visible::after{
+      opacity: 1;
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    /* ============================
+       PAGE TRANSITION
+       Use a separate full-screen overlay that fades in/out.
+       ============================ */
+    #pageTransition{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100svh;
+      background: #fff;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .55s cubic-bezier(.22,.61,.36,1);
+    }
+    #pageTransition.is-ready{
+      opacity: 0;
+    }
+    #pageTransition.is-leaving{
+      opacity: 1;
+      transition: opacity .35s cubic-bezier(.55,.08,.68,.53);
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="sr-only">Jens Haugaard — Index</h1>
+
+<!-- Top navigation -->
+<nav class="top-nav" aria-label="Primary">
+  <a href="index.html" id="navFeed">FEED</a>
+  <a href="list.html" id="navIndex" class="active" aria-current="page">INDEX</a>
+  <button type="button" id="navInfo" aria-haspopup="dialog">INFO</button>
+</nav>
+
+<!-- Logo -->
+<a href="/" id="logoLink" aria-label="Go to homepage">
+  <img src="LOGO.svg" id="logoStatic" alt="Jens Haugaard logo">
+</a>
+
+<!-- Info overlay -->
+<div id="overlay" aria-hidden="true" role="dialog" aria-label="Information">
+  <div class="overlay-content overlay-grid">
+
+    <div class="overlay-left">
+      <div>TEL</div>
+      <div>EMAIL</div>
+      <div>INSTAGRAM</div>
+    </div>
+
+    <div class="overlay-center">
+      <div><a href="tel:+4553648444">(+45) 53 64 84 44</a></div>
+      <div><a href="mailto:hello@jenshaugaard.com">HELLO(AT)JENSHAUGAARD.COM</a></div>
+      <div><a href="https://www.instagram.com/jenshaugaaard" target="_blank" rel="noopener">JENSHAUGAAARD</a></div>
+    </div>
+
+    <div class="overlay-right">
+      <div>
+        PHOTOGRAPHER AND MULTIDISCIPLINARY<br>
+        CREATIVE EXPLORING VISUAL MEDIUMS.<br>
+        BASED IN COPENHAGEN. CURRENTLY AT
+        <a href="https://www.ducor.dk" target="_blank" rel="noopener">DUCOR</a>
+      </div>
+    </div>
+
+    <div class="overlay-footer">
+      WEBSITE BY JENS HAUGAARD | COPYRIGHT 2026
+    </div>
+  </div>
+</div>
+
+<!-- Page transition overlay -->
+<div id="pageTransition" aria-hidden="true"></div>
+
+<main>
+  <div class="list-wrap" id="listWrap" role="listbox" aria-label="Projects">
+    <div class="list-track" id="listTrack"></div>
+  </div>
+
+  <div class="hero" id="hero" aria-hidden="true">
+    <img id="heroImg" alt="">
+  </div>
+</main>
+
+<script>
+(()=>{
+  "use strict";
+
+  const images = [
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK3.png?updatedAt=1746569168316", title:"SKYLL Artwork", client:"Universal Music", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK_4C2A8077%20(1).jpg?updatedAt=1750228600988", title:"Lamin Press", client:"Universal Music", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK5.png?updatedAt=1746569166859", title:"Ducor Web", client:"Ducor", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK12.png?updatedAt=1746988566466", title:"Sport Graphics", client:"Exercere", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/QURATEExSNKRS_JULY1926.jpg?updatedAt=1760568963291", title:"SNKRS Campaign", client:"Quratee × Nike", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK7.PNG?updatedAt=1746988570168", title:"Lostboys Graphics", client:"Lostboys", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK15.JPG?updatedAt=1749794017782", title:"24 Artwork", client:"Disco Wax", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK8.png?updatedAt=1746988565327", title:"NHVEH Photography", client:"Universal Music", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK9.png?updatedAt=1746988567337", title:"Lamin, SKYLL Billboard Photography", client:"Lamin", year:"2023"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK10.png?updatedAt=1746988566926", title:"RTW Campaign", client:"RTW", year:"2023"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK11.png?updatedAt=1746988567431", title:"Maecor CAP1", client:"Maecor", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK16.JPG?updatedAt=1749794012884", title:"Guld & Grønne Artwork", client:"Universal", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK17.JPEG?updatedAt=1749794010883", title:"Sleep Campaign", client:"Exercere", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/FOREVERLAST_21_070255_LOWRES.jpg?updatedAt=1760568551971", title:"Foreverlast Lookbook", client:"Foreverlast", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK4.png?updatedAt=1746569166583", title:"Længe Leve Artwork", client:"Universal Music", year:"2023"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK13.png?updatedAt=1746988567415", title:"Shaker Campaign", client:"Shaker", year:"2023"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/000027610007_HIGHRES.jpg?updatedAt=1760568443958", title:"Maecor Cap03", client:"Maecor", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK6.png?updatedAt=1746988566457", title:"Maecor Web", client:"Maecor", year:"2024"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK1.png?updatedAt=1746569166951", title:"Brand Identity", client:"Ducor", year:"2025"},
+  {src:"https://ik.imagekit.io/ou0fyxmmi/WORK2.png?updatedAt=1746569168372", title:"Cap1 concept", client:"Maecor", year:"2024"},
+];
+
+  const $ = (sel, root=document)=> root.querySelector(sel);
+  const listWrap = $('#listWrap');
+  const listTrack = $('#listTrack');
+  const heroImg = $('#heroImg');
+  const overlay = $('#overlay');
+  const navInfo = $('#navInfo');
+
+  let currentFocus = -1;
+  let rows = [];
+  let cursorY = -1;
+  let isMobile = false;
+
+  function pad(n, w=3){
+    const s = String(n);
+    return s.length >= w ? s : '0'.repeat(w - s.length) + s;
+  }
+
+  function detectMobile(){
+    isMobile = window.matchMedia('(max-width: 800px)').matches;
+  }
+
+  function setFocus(idx){
+    if(idx === currentFocus) return;
+    if(idx < 0 || idx >= images.length) return;
+
+    if(rows[currentFocus]) rows[currentFocus].classList.remove('is-focus');
+    rows[idx].classList.add('is-focus');
+
+    heroImg.src = images[idx].src;
+    heroImg.alt = images[idx].title || '';
+
+    currentFocus = idx;
+  }
+
+  function build(){
+    detectMobile();
+    listTrack.innerHTML = '';
+
+    const frag = document.createDocumentFragment();
+    images.forEach((it, idx) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.setAttribute('role', 'option');
+      row.dataset.index = idx;
+
+      const job = document.createElement('div');
+      job.className = 'col col-job';
+      job.textContent = it.title || `Project ${idx+1}`;
+
+      const num = document.createElement('div');
+      num.className = 'col col-num';
+      num.textContent = pad(idx + 1);
+
+      const client = document.createElement('div');
+      client.className = 'col col-client';
+      client.textContent = it.client || '';
+
+      const year = document.createElement('div');
+      year.className = 'col col-year';
+      year.textContent = it.year || '';
+
+      row.append(job, num, client, year);
+
+      // Click selects
+      row.addEventListener('click', () => setFocus(idx));
+
+      frag.appendChild(row);
+    });
+    listTrack.appendChild(frag);
+    rows = Array.from(listTrack.querySelectorAll('.row'));
+
+    setFocus(0);
+  }
+
+  // ============================
+  // MOBILE — align hero image with row grid columns 2-4
+  // (NUM, CLIENT, YEAR — i.e. everything except the JOB column).
+  // We measure the actual rendered grid cells of the focused row to get
+  // pixel-perfect alignment with column-gaps.
+  // Desktop uses CSS-only positioning (var(--image-max-w) on the right).
+  // ============================
+  const hero = $('#hero');
+
+  function alignHeroToGrid(){
+    if(!isMobile){
+      // Desktop: clear any inline styles from previous mobile state
+      hero.style.left = '';
+      hero.style.width = '';
+      hero.style.right = '';
+      hero.style.top = '';
+      hero.style.transform = '';
+      return;
+    }
+    if(!rows.length) return;
+
+    const sampleRow = rows[Math.max(0, currentFocus)];
+    const cells = sampleRow.querySelectorAll('.col');
+    if(cells.length < 4) return;
+
+    const colNum = cells[1];   // 2nd column (NUM)
+    const colYear = cells[3];  // 4th column (YEAR)
+
+    const numRect = colNum.getBoundingClientRect();
+    const yearRect = colYear.getBoundingClientRect();
+
+    const left = numRect.left;
+    const width = yearRect.right - left;
+
+    hero.style.left = left + 'px';
+    hero.style.width = width + 'px';
+    hero.style.right = 'auto';
+  }
+
+  // ============================
+  // DESKTOP — cursor-Y focus
+  // The row whose vertical bounds contain the cursor wins focus.
+  // Falls back to the closest row if cursor is outside the list area.
+  // ============================
+  function updateFocusFromCursor(){
+    if(isMobile) return;
+    if(cursorY < 0 || !rows.length) return;
+
+    // Only react if cursor is over the list-wrap area
+    const wrapRect = listWrap.getBoundingClientRect();
+    if(cursorY < wrapRect.top || cursorY > wrapRect.bottom) return;
+
+    let bestIdx = -1;
+    let bestDist = Infinity;
+    for(let i = 0; i < rows.length; i++){
+      const r = rows[i].getBoundingClientRect();
+      if(cursorY >= r.top && cursorY < r.bottom){
+        setFocus(i);
+        return;
+      }
+      const center = (r.top + r.bottom) / 2;
+      const dist = Math.abs(cursorY - center);
+      if(dist < bestDist){
+        bestDist = dist;
+        bestIdx = i;
+      }
+    }
+    if(bestIdx >= 0) setFocus(bestIdx);
+  }
+
+  document.addEventListener('mousemove', (e) => {
+    cursorY = e.clientY;
+    if(!isMobile) updateFocusFromCursor();
+  }, { passive: true });
+
+  let scrollRaf = null;
+  listWrap.addEventListener('scroll', () => {
+    if(scrollRaf) return;
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = null;
+      if(isMobile){
+        updateFocusFromMobileScroll();
+        alignHeroToGrid();
+      } else {
+        updateFocusFromCursor();
+      }
+    });
+  }, { passive: true });
+
+  // ============================
+  // MOBILE — top-most visible row is focused
+  // ============================
+  function updateFocusFromMobileScroll(){
+    if(!isMobile || !rows.length) return;
+    const wrapRect = listWrap.getBoundingClientRect();
+    const padTop = parseFloat(getComputedStyle(listWrap).paddingTop) || 0;
+    const focusY = wrapRect.top + padTop;
+
+    let bestIdx = 0;
+    let bestDelta = Infinity;
+    for(let i = 0; i < rows.length; i++){
+      const r = rows[i].getBoundingClientRect();
+      const delta = r.top - focusY;
+      if(delta >= -2 && delta < bestDelta){
+        bestDelta = delta;
+        bestIdx = i;
+      }
+    }
+    setFocus(bestIdx);
+  }
+
+  // ============================
+  // OVERLAY
+  // ============================
+  function setOverlay(open){
+    overlay.classList.toggle('active', open);
+    overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.classList.toggle('menu-open', open);
+  }
+
+  navInfo.addEventListener('click', (e) => {
+    e.preventDefault();
+    setOverlay(!overlay.classList.contains('active'));
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) setOverlay(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && overlay.classList.contains('active')){
+      setOverlay(false);
+    }
+  });
+
+  function preload(){
+    images.forEach(it => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = it.src;
+    });
+  }
+
+  // Resize handling — re-detect mobile state, refresh focus calculation
+  let resizeRaf = null;
+  window.addEventListener('resize', () => {
+    if(resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = null;
+      const wasMobile = isMobile;
+      detectMobile();
+      if(wasMobile !== isMobile){
+        // Mobile/desktop boundary crossed — rebuild to apply correct layout
+        build();
+      } else if(isMobile){
+        updateFocusFromMobileScroll();
+      } else {
+        updateFocusFromCursor();
+      }
+      alignHeroToGrid();
+    });
+  }, { passive: true });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    build();
+    preload();
+    if(isMobile) requestAnimationFrame(updateFocusFromMobileScroll);
+    requestAnimationFrame(alignHeroToGrid);
+
+    // ============================
+    // PAGE TRANSITION
+    // Fade out the white overlay once content is mounted.
+    // ============================
+    const pageTransition = document.getElementById('pageTransition');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if(pageTransition) pageTransition.classList.add('is-ready');
+      });
+    });
+
+    // Intercept navigation clicks (FEED / INDEX) for fade-in
+    const navLinks = document.querySelectorAll('.top-nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if(!href || href.startsWith('#')) return;
+        if(link.target === '_blank') return;
+        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const targetPath = href.split('/').pop();
+        if(currentPath === targetPath) return;
+
+        e.preventDefault();
+        if(pageTransition){
+          pageTransition.classList.remove('is-ready');
+          pageTransition.classList.add('is-leaving');
+        }
+        setTimeout(() => {
+          window.location.assign(href);
+        }, 350);
+      });
+    });
+
+    // Restore on browser back/forward (bfcache)
+    window.addEventListener('pageshow', (e) => {
+      if(e.persisted && pageTransition){
+        pageTransition.classList.remove('is-leaving');
+        pageTransition.classList.add('is-ready');
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

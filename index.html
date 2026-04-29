@@ -105,15 +105,14 @@
     }
 
     .thumb img{
-  width: 105%;
-  height: 105%;
-  margin: -2.5%;          /* centrer det opskalerede billede */
+  width: 110%;
+  height: 110%;
+  margin: -5%;          /* centrer det opskalerede billede */
   object-fit: cover;
   display: block;
   backface-visibility: hidden;
   transform: translateZ(0);
   opacity: 0.35;
-  -webkit-filter: blur(1px);
   filter: blur(1px);
   transition: opacity 0.15s ease, -webkit-filter 0.15s ease, filter 0.15s ease;
 }
@@ -139,6 +138,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-family: var(--overlay-font);
       font-size: 12px;
       letter-spacing: .01em;
       z-index: 6;
@@ -147,7 +147,7 @@
     }
 
     .caption-count{ text-align: left; white-space: nowrap; }
-    .caption-title{ text-align: right; white-space: nowrap; }
+    .caption-title{ text-align: right; white-space: nowrap; text-transform: uppercase; letter-spacing: -.2px; }
 
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
@@ -158,38 +158,6 @@
     }
 
     /* ===== Overlay / Menu ===== */
-    #menuToggle{
-      position:absolute; top:18px; left:18px; width:20px; height:20px;
-      z-index:110 !important; cursor:pointer; mix-blend-mode:difference;
-      -webkit-user-drag:none; user-select:none; touch-action:manipulation;
-      transition: transform .3s cubic-bezier(.37,.01,.65,.99);
-      display:block; pointer-events:auto;
-    }
-    #menuToggle::before{
-      content:""; position:absolute; top:-24px; right:-24px; bottom:-24px; left:-24px;
-      background:linear-gradient(transparent,transparent); pointer-events:auto;
-    }
-    #menuToggle.rotated{ transform:rotate(45deg); }
-
-    #menuHit{
-      position:absolute; top:24px; left:24px; width:56px; height:56px;
-      transform:translate(-18px,-18px); background:transparent; border:0; padding:0; margin:0;
-      cursor:pointer; z-index:111 !important; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-    }
-
-    #menuToggle{
-      position:absolute;
-      top:18px;
-      left:18px;
-      width:20px;
-      height:20px;
-      z-index:110 !important;
-      cursor:pointer;
-      mix-blend-mode:difference;
-      transform-origin:center;
-      transition: transform .3s cubic-bezier(.37,.01,.65,.99);
-    }
-
     #logoStatic{
       position:absolute;
       top:18px;
@@ -203,10 +171,50 @@
       display:block;
     }
 
-    @media (max-width:800px){
+    /* Top navigation — Neue Haas Grotesk, all black, no highlight */
+    .top-nav{
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 110;
+      display: flex;
+      gap: 28px;
+      font-family: "neue-haas-grotesk-display", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 20px;
+      align-items: center;
+    }
+
+    .top-nav a,
+    .top-nav button{
+      color: #000;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity .2s ease;
+    }
+
+    .top-nav a:hover,
+    .top-nav button:hover{
+      opacity: 0.9;
+    }
+
+    @media (max-width: 800px){
+      .top-nav{
+        top: 18px;
+        left: 16px;
+        gap: 18px;
+      }
       #logoStatic{ top:18px; right:16px; }
-      #menuToggle{ top:18px; left:16px; }
-      #menuLabel{ top: 21px; left: 16px; }
     }
 
     #overlay{
@@ -403,7 +411,34 @@
 
     html, body{ background:#fff; }
 
-    
+    /* ============================
+       PAGE TRANSITION
+       Use a separate full-screen overlay that fades in/out — applying filter
+       directly to <main> breaks fixed-positioned children (hero-wrap / rail-wrap).
+       The overlay starts opaque white, then fades out on load (revealing the page),
+       and fades back in on navigation.
+       ============================ */
+    #pageTransition{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100svh;
+      background: #fff;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .28s cubic-bezier(.22,.61,.36,1);
+    }
+    #pageTransition.is-ready{
+      opacity: 0;
+    }
+    #pageTransition.is-leaving{
+      opacity: 1;
+      transition: opacity .22s cubic-bezier(.55,.08,.68,.53);
+    }
+
   </style>
 </head>
 <body>
@@ -417,9 +452,12 @@
   <div id="lottie-preloader" aria-hidden="true"></div>
 </div>
 
-<!-- Menu toggle -->
-<img src="menu.svg" id="menuToggle" alt="Open menu">
-<button id="menuHit" aria-label="Open menu"></button>
+<!-- Top navigation -->
+<nav class="top-nav" aria-label="Primary">
+  <a href="index.html" id="navFeed" class="active" aria-current="page">FEED</a>
+  <a href="list.html" id="navIndex">INDEX</a>
+  <button type="button" id="navInfo" aria-haspopup="dialog">INFO</button>
+</nav>
 <span id="menuLabel" aria-hidden="true"></span>
 
 <!-- Static logo (top right) -->
@@ -463,11 +501,14 @@
     </div>
 
     <div class="overlay-footer">
-      COPYRIGHT 2026 JENS HAUGAARD
+      WEBSITE BY JENS HAUGAARD | COPYRIGHT 2026
     </div>
 
   </div>
 </div>
+
+<!-- Page transition overlay (fades in/out for nav transitions) -->
+<div id="pageTransition" aria-hidden="true"></div>
 
 <main>
 
@@ -578,30 +619,35 @@
   const heroA     = $('#heroA');
   const heroB     = $('#heroB');
   const caption   = $('#caption');
-  const menuIcon  = $('#menuToggle');
-  const menuHit   = $('#menuHit');
+  const navInfo  = $('#navInfo');
   const overlay   = $('#overlay');
   const pre       = $('#preloader-overlay');
 
-  function setHoverStroke(on){
-    if(menuIcon.classList.contains('rotated')) return;
-    menuIcon.classList.toggle('hover-stroke', on);
-  }
-
-  menuIcon.addEventListener('pointerenter', () => setHoverStroke(true));
-  menuIcon.addEventListener('pointerleave', () => setHoverStroke(false));
-  menuHit.addEventListener('pointerenter', () => setHoverStroke(true));
-  menuHit.addEventListener('pointerleave', () => setHoverStroke(false));
-  menuIcon.addEventListener('focusin',  () => setHoverStroke(true));
-  menuIcon.addEventListener('focusout', () => setHoverStroke(false));
-  menuHit .addEventListener('focusin',  () => setHoverStroke(true));
-  menuHit .addEventListener('focusout', () => setHoverStroke(false));
-
   /* =========================
      LOTTIE PRELOADER
+     Only show on first load of the session. Subsequent visits (back nav,
+     navigation between FEED/INDEX, etc.) skip straight to the content.
   ========================= */
   let lottieAnim = null;
-  if(typeof lottie !== 'undefined'){
+  let skipPreloader = false;
+
+  try{
+    if(sessionStorage.getItem('jh_preloader_seen') === '1'){
+      skipPreloader = true;
+    }
+  }catch(_){
+    // Ignore — sessionStorage might be blocked (private mode, etc.)
+  }
+
+  if(skipPreloader){
+    // Hide preloader element immediately, no animation
+    const preEl = document.getElementById('preloader-overlay');
+    if(preEl){
+      preEl.style.display = 'none';
+      preEl.dataset.hidden = '1';
+    }
+    // We'll flip preloaderActive to false in DOMContentLoaded so the carousel runs
+  } else if(typeof lottie !== 'undefined'){
     try{
       lottieAnim = lottie.loadAnimation({
       container: document.getElementById('lottie-preloader'),
@@ -638,13 +684,20 @@
   /* =========================
      INITIAL HERO
   ========================= */
+  // Pad a number with leading zeros to a given width.
+  // Example: padNum(8, 3) → "008"
+  function padNum(n, w=3){
+    const s = String(n);
+    return s.length >= w ? s : '0'.repeat(w - s.length) + s;
+  }
+
   let frontIsA = true;
   if(images && images.length){
     heroA.src = images[0].src;
     heroA.classList.add('show');
     const countEl = caption.querySelector('.caption-count');
     const titleEl = caption.querySelector('.caption-title');
-    countEl.textContent = `1 / ${images.length}`;
+    countEl.textContent = `${padNum(1)}/${padNum(images.length)}`;
     titleEl.textContent = images[0].title || '';
   }
 
@@ -782,7 +835,7 @@
 
     const countEl = caption.querySelector('.caption-count');
     const titleEl = caption.querySelector('.caption-title');
-    countEl.textContent = `(${i + 1} / ${images.length})`;
+    countEl.textContent = `${padNum(i + 1)}/${padNum(images.length)}`;
     titleEl.textContent = item.title || '';
 
     const n1 = images[(i+1)%images.length];
@@ -805,7 +858,7 @@
   let isDragging = false;
   let uiLocked = false;
   let inertial = false;
-  let preloaderActive = true; // lock carousel until preloader fades out
+  let preloaderActive = !skipPreloader; // skip lock if we're not showing preloader
   let isHoveringThumb = false;    
   let hoveredHeroIdx = -1;         
   let lastPX = 0;
@@ -1044,8 +1097,15 @@
 
     preloaderActive = false;
 
+    // Mark this session as having seen the preloader
+    try{ sessionStorage.setItem('jh_preloader_seen', '1'); }catch(_){}
+
     pre.classList.add('fade-out');
     pre.dataset.hidden = "1";
+
+    // Reveal page-content with blur fade-in (after preloader fades out)
+    revealPageContent();
+
     setTimeout(()=>{
       pre.style.display='none';
       // Free up Lottie resources after preloader is gone
@@ -1057,12 +1117,41 @@
   }
 
   // Safety fallback — if Lottie fails or takes too long, hide preloader anyway
-  setTimeout(hidePreloader, 5000);
+  // Only schedule if we're actually showing the preloader.
+  if(!skipPreloader){
+    setTimeout(hidePreloader, 5000);
+  } else {
+    // Even when skipping, we still need to initialize the carousel state
+    // (this would normally happen inside hidePreloader)
+    // We do it after DOMContentLoaded inside boot() instead.
+  }
+
+  /* =========================
+     PAGE TRANSITION — fade out the white overlay
+     Always fire — regardless of preloader state.
+  ========================= */
+  function revealPageContent(){
+    const pt = document.getElementById('pageTransition');
+    if(!pt) return;
+    if(pt.classList.contains('is-ready')) return;
+    if(pt.classList.contains('is-leaving')) return;
+    pt.classList.add('is-ready');
+  }
+
+  // If preloader is skipped → reveal immediately. Otherwise, hidePreloader will
+  // call revealPageContent itself, but we still set a safety timeout in case
+  // Lottie hangs.
+  document.addEventListener('DOMContentLoaded', () => {
+    if(skipPreloader){
+      requestAnimationFrame(() => requestAnimationFrame(revealPageContent));
+    } else {
+      setTimeout(revealPageContent, 4500);
+    }
+  });
 
   function setMenuState(open){
     overlay.classList.toggle('active', open);
     document.body.classList.toggle('menu-open', open);
-    menuIcon.classList.toggle('rotated', open);
     uiLocked = !!open;
 
     if(window.matchMedia('(max-width: 800px)').matches){
@@ -1081,8 +1170,17 @@
   }
 
   ['click'].forEach(evt=>{
-    menuIcon.addEventListener(evt, toggleMenu, {passive:false});
-    menuHit.addEventListener(evt, toggleMenu, {passive:false});
+    navInfo.addEventListener(evt, toggleMenu, {passive:false});
+  });
+
+  // Close overlay on click outside content or Escape
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) setMenuState(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && overlay.classList.contains('active')){
+      setMenuState(false);
+    }
   });
 
   const hideRailInstant = (e)=>{
@@ -1091,8 +1189,7 @@
     railWrap.classList.add('is-hidden');
   };
   ['pointerdown','touchstart','mousedown'].forEach(evt=>{
-    menuIcon.addEventListener(evt, hideRailInstant, {passive:true});
-    menuHit .addEventListener(evt, hideRailInstant, {passive:true});
+    navInfo.addEventListener(evt, hideRailInstant, {passive:true});
   });
 
   const scrollBlock = (e)=>{ if(!document.body.classList.contains('menu-open')) e.preventDefault(); };
@@ -1146,6 +1243,55 @@
     railWrap.classList.remove('is-ready');
 
     buildAllSets();
+
+    // If we skipped the preloader, do the initialization that hidePreloader
+    // would normally do (center on first image, update hero, reset clock).
+    if(skipPreloader){
+      centerOnIndex(0);
+      activeIndex = -1;
+      updateHero(0);
+      lastHeroRendered = 0;
+      currentIdx = 0;
+      vel = 0;
+      inertial = false;
+      resetAnimationClock();
+    }
+    // (When preloader is shown, page-content is revealed inside hidePreloader)
+
+    // ============================
+    // NAV LINK PAGE TRANSITION
+    // Intercept clicks on FEED / INDEX so we can fade-out before navigating.
+    // ============================
+    const pageTransition = document.getElementById('pageTransition');
+    const navLinks = document.querySelectorAll('.top-nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if(!href || href.startsWith('#')) return;
+        if(link.target === '_blank') return;
+        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const targetPath = href.split('/').pop();
+        if(currentPath === targetPath) return;
+
+        e.preventDefault();
+        if(pageTransition){
+          pageTransition.classList.remove('is-ready');
+          pageTransition.classList.add('is-leaving');
+        }
+        setTimeout(() => {
+          window.location.assign(href);
+        }, 220);
+      });
+    });
+
+    // Restore on browser back/forward (bfcache)
+    window.addEventListener('pageshow', (e) => {
+      if(e.persisted && pageTransition){
+        pageTransition.classList.remove('is-leaving');
+        pageTransition.classList.add('is-ready');
+      }
+    });
 
     await waitThumbsReady();
     railWrap.classList.add('is-ready');
