@@ -112,8 +112,8 @@
   display: block;
   backface-visibility: hidden;
   transform: translateZ(0);
-  opacity: 0.35;
-  filter: blur(1px);
+  opacity: 0.9;
+  filter: blur(.5px);
   transition: opacity 0.15s ease, -webkit-filter 0.15s ease, filter 0.15s ease;
 }
 
@@ -174,7 +174,7 @@
     /* Top navigation — Neue Haas Grotesk, all black, no highlight */
     .top-nav{
       position: fixed;
-      top: 18px;
+      top: 14px;
       left: 18px;
       z-index: 110;
       display: flex;
@@ -205,12 +205,12 @@
 
     .top-nav a:hover,
     .top-nav button:hover{
-      opacity: 0.9;
+      opacity: 0.5;
     }
 
     @media (max-width: 800px){
       .top-nav{
-        top: 18px;
+        top: 14px;
         left: 16px;
         gap: 18px;
       }
@@ -232,7 +232,7 @@
       pointer-events:none;
       transition:opacity .4s ease;
       font-family: var(--overlay-font);
-      font-size: 14px;
+      font-size: 12px;
       letter-spacing: -0.05em;
       font-weight: 400;
     }
@@ -245,13 +245,13 @@
     #overlay.active{ opacity:1; pointer-events:all; }
 
     .overlay-grid{
-      position:absolute;
-      inset:0;
-      padding: 28px;
-      display:grid;
-      grid-template-columns: .5fr 1fr 3fr;
+      position: absolute;
+      inset: 0;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: .5fr 1fr 2fr;
       column-gap: 24px;
-      align-items:center;
+      align-items: center;
     }
 
     .overlay-left{ text-align:left; }
@@ -424,12 +424,12 @@
       width: 100%;
       height: 100svh;
       background: #fff;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 200;
       pointer-events: none;
       opacity: 1;
-      transition: opacity .28s cubic-bezier(.22,.61,.36,1);
+      transition: opacity .25s cubic-bezier(.22,.61,.36,1);
     }
     #pageTransition.is-ready{
       opacity: 0;
