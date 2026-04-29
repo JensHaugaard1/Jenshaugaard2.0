@@ -283,6 +283,18 @@
         background: transparent;
       }
 
+      .row{
+        grid-template-columns: minmax(0,1.5fr) auto minmax(0,1fr) auto;
+        column-gap: 16px;
+        background: transparent;
+        transition: none;
+      }
+
+      .row::before,
+      .row .col{
+        transition: none;
+      }
+
       .row .col-year{
         text-align: right;
         justify-self: end;
@@ -730,24 +742,14 @@
   // ============================
   // MOBILE — top-most visible row is focused
   // ============================
-  function updateFocusFromMobileScroll(){
-    if(!isMobile || !rows.length) return;
-    const wrapRect = listWrap.getBoundingClientRect();
-    const padTop = parseFloat(getComputedStyle(listWrap).paddingTop) || 0;
-    const focusY = wrapRect.top + padTop;
-
-    let bestIdx = 0;
-    let bestDelta = Infinity;
-    for(let i = 0; i < rows.length; i++){
-      const r = rows[i].getBoundingClientRect();
-      const delta = r.top - focusY;
-      if(delta >= -2 && delta < bestDelta){
-        bestDelta = delta;
-        bestIdx = i;
-      }
-    }
-    setFocus(bestIdx);
-  }
+ function updateFocusFromMobileScroll(){
+  if(!isMobile || !rows.length) return;
+  const rowH = rows[0].getBoundingClientRect().height;
+  if(rowH <= 0) return;
+  // Direct math: scrollTop / rowHeight = which row is at the focus line
+  const idx = Math.round(listWrap.scrollTop / rowH);
+  setFocus(Math.max(0, Math.min(rows.length - 1, idx)));
+}
 
   // ============================
   // OVERLAY
