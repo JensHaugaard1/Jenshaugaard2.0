@@ -308,7 +308,7 @@
 
       .row.is-focus,
 .row.is-focus .col{
-  transition: color 0.05s ease, opacity 0.05s ease;
+  transition: color 0.1s ease, opacity 0.1s ease;
 }
 
       .row .col-year{
@@ -600,14 +600,15 @@
   let cursorY = -1;
   let isMobile = false;
 
-  let mobileStepIndex = 0;
-  let mobileTouchStartY = null;
-  let mobileLastTouchY = null;
-  let mobileLastTouchTime = 0;
-  let mobileVelocity = 0;
-  let mobileWheelAccum = 0;
-  let mobileStepLock = false;
-  let mobileMomentumTimer = null;
+let mobileStepIndex = 0;
+let mobileTouchStartY = null;
+let mobileLastTouchY = null;
+let mobileLastTouchTime = 0;
+let mobileVelocity = 0;
+let mobileDragAccum = 0;
+let mobileWheelAccum = 0;
+let mobileStepLock = false;
+let mobileMomentumTimer = null;
 
   function getMobileMaxIndex(){
     return Math.max(0, images.length - 1);
@@ -624,11 +625,16 @@
     alignHeroToGrid();
   }
 
+  function moveMobileStep(direction){
+    if(!isMobile || !rows.length) return;
+    if(direction === 0) return;
+    setMobileStepIndex(mobileStepIndex + (direction > 0 ? 1 : -1));
+  }
+
   function stepMobile(delta){
     if(!isMobile || mobileStepLock) return;
     if(delta === 0) return;
-    const next = mobileStepIndex + (delta > 0 ? 1 : -1);
-    setMobileStepIndex(next);
+    moveMobileStep(delta);
     mobileStepLock = true;
     window.setTimeout(() => {
       mobileStepLock = false;
@@ -817,6 +823,7 @@ listWrap.addEventListener('touchstart', (e) => {
   mobileLastTouchY = mobileTouchStartY;
   mobileLastTouchTime = performance.now();
   mobileVelocity = 0;
+  mobileDragAccum = 0;
 }, { passive: false });
 
 listWrap.addEventListener('touchmove', (e) => {
@@ -825,17 +832,20 @@ listWrap.addEventListener('touchmove', (e) => {
 
   const now = performance.now();
   const y = e.touches[0].clientY;
-  const diff = mobileTouchStartY - y;
   const frameDiff = mobileLastTouchY - y;
   const frameTime = Math.max(1, now - mobileLastTouchTime);
+  const rowH = rows[0] ? rows[0].getBoundingClientRect().height : 0;
 
   mobileVelocity = frameDiff / frameTime;
+  mobileDragAccum += frameDiff;
 
-  const threshold = 3;
-
-  if(Math.abs(diff) >= threshold){
-    stepMobile(diff);
-    mobileTouchStartY = y;
+  if(rowH > 0){
+    const stepDistance = Math.max(12, rowH * 0.72);
+    while(Math.abs(mobileDragAccum) >= stepDistance){
+      const direction = mobileDragAccum > 0 ? 1 : -1;
+      moveMobileStep(direction);
+      mobileDragAccum -= direction * stepDistance;
+    }
   }
 
   mobileLastTouchY = y;
@@ -847,6 +857,7 @@ listWrap.addEventListener('touchend', () => {
   mobileTouchStartY = null;
   mobileLastTouchY = null;
   mobileVelocity = 0;
+  mobileDragAccum = 0;
 }, { passive: true });
 
 listWrap.addEventListener('wheel', (e) => {
@@ -882,18 +893,18 @@ listWrap.addEventListener('wheel', (e) => {
     if(!isMobile || !rows.length) return;
     clearTimeout(mobileMomentumTimer);
 
-    const absV = Math.abs(velocity) * 2;
-    if(absV < 0.25) return;
+    const absV = Math.abs(velocity);
+    if(absV < 0.42) return;
 
     const direction = velocity > 0 ? 1 : -1;
-    let steps = Math.min(8, Math.max(1, Math.round(absV * 8)));
-    let delay = 38;
+    let steps = Math.min(7, Math.max(1, Math.round(absV * 5.5)));
+    let delay = 52;
 
     function momentumStep(){
       if(steps <= 0) return;
-      stepMobile(direction);
+      moveMobileStep(direction);
       steps -= 1;
-      delay *= 1.42;
+      delay *= 1.36;
       mobileMomentumTimer = window.setTimeout(momentumStep, delay);
     }
 
