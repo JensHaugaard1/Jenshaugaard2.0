@@ -308,7 +308,7 @@
 
       .row.is-focus,
 .row.is-focus .col{
-  transition: color 0.1s ease, opacity 0.1s ease;
+  transition: color 0.07s ease, opacity 0.1s ease;
 }
 
       .row .col-year{
@@ -606,6 +606,7 @@ let mobileLastTouchY = null;
 let mobileLastTouchTime = 0;
 let mobileVelocity = 0;
 let mobileDragAccum = 0;
+let mobileHasMovedDuringGesture = false;
 let mobileWheelAccum = 0;
 let mobileStepLock = false;
 let mobileMomentumTimer = null;
@@ -824,6 +825,7 @@ listWrap.addEventListener('touchstart', (e) => {
   mobileLastTouchTime = performance.now();
   mobileVelocity = 0;
   mobileDragAccum = 0;
+  mobileHasMovedDuringGesture = false;
 }, { passive: false });
 
 listWrap.addEventListener('touchmove', (e) => {
@@ -840,11 +842,15 @@ listWrap.addEventListener('touchmove', (e) => {
   mobileDragAccum += frameDiff;
 
   if(rowH > 0){
-    const stepDistance = Math.max(12, rowH * 0.72);
-    while(Math.abs(mobileDragAccum) >= stepDistance){
+    const firstStepDistance = Math.max(5, rowH * 0.28);
+    const stepDistance = Math.max(13, rowH * 0.68);
+    const activeStepDistance = mobileHasMovedDuringGesture ? stepDistance : firstStepDistance;
+
+    while(Math.abs(mobileDragAccum) >= activeStepDistance){
       const direction = mobileDragAccum > 0 ? 1 : -1;
       moveMobileStep(direction);
       mobileDragAccum -= direction * stepDistance;
+      mobileHasMovedDuringGesture = true;
     }
   }
 
@@ -858,6 +864,7 @@ listWrap.addEventListener('touchend', () => {
   mobileLastTouchY = null;
   mobileVelocity = 0;
   mobileDragAccum = 0;
+  mobileHasMovedDuringGesture = false;
 }, { passive: true });
 
 listWrap.addEventListener('wheel', (e) => {
