@@ -284,6 +284,8 @@
       .list-track{
         flex: initial;
         width: auto;
+        transition: none;
+        will-change: transform;
       }
 
       .row{
@@ -600,8 +602,12 @@
 
   let mobileStepIndex = 0;
   let mobileTouchStartY = null;
+  let mobileLastTouchY = null;
+  let mobileLastTouchTime = 0;
+  let mobileVelocity = 0;
   let mobileWheelAccum = 0;
   let mobileStepLock = false;
+  let mobileMomentumTimer = null;
 
   function getMobileMaxIndex(){
     return Math.max(0, images.length - 1);
@@ -806,25 +812,41 @@ listWrap.addEventListener('scroll', () => {
 
 listWrap.addEventListener('touchstart', (e) => {
   if(!isMobile) return;
+  clearTimeout(mobileMomentumTimer);
   mobileTouchStartY = e.touches[0].clientY;
+  mobileLastTouchY = mobileTouchStartY;
+  mobileLastTouchTime = performance.now();
+  mobileVelocity = 0;
 }, { passive: false });
 
 listWrap.addEventListener('touchmove', (e) => {
   if(!isMobile || mobileTouchStartY === null) return;
   e.preventDefault();
 
+  const now = performance.now();
   const y = e.touches[0].clientY;
   const diff = mobileTouchStartY - y;
-  const threshold = 3.5;
+  const frameDiff = mobileLastTouchY - y;
+  const frameTime = Math.max(1, now - mobileLastTouchTime);
+
+  mobileVelocity = frameDiff / frameTime;
+
+  const threshold = 2.5;
 
   if(Math.abs(diff) >= threshold){
     stepMobile(diff);
     mobileTouchStartY = y;
   }
+
+  mobileLastTouchY = y;
+  mobileLastTouchTime = now;
 }, { passive: false });
 
 listWrap.addEventListener('touchend', () => {
+  startMobileMomentum(mobileVelocity);
   mobileTouchStartY = null;
+  mobileLastTouchY = null;
+  mobileVelocity = 0;
 }, { passive: true });
 
 listWrap.addEventListener('wheel', (e) => {
@@ -838,6 +860,11 @@ listWrap.addEventListener('wheel', (e) => {
     stepMobile(mobileWheelAccum);
     mobileWheelAccum = 0;
   }
+
+  clearTimeout(mobileMomentumTimer);
+  mobileMomentumTimer = window.setTimeout(() => {
+    startMobileMomentum(e.deltaY / 18);
+  }, 35);
 }, { passive: false });
 
   // ============================
@@ -847,6 +874,31 @@ listWrap.addEventListener('wheel', (e) => {
   if(!isMobile || !rows.length) return;
   setMobileStepIndex(mobileStepIndex);
 }
+
+  // ============================
+  // MOBILE — momentum after wheel
+  // ============================
+  function startMobileMomentum(velocity){
+    if(!isMobile || !rows.length) return;
+    clearTimeout(mobileMomentumTimer);
+
+    const absV = Math.abs(velocity);
+    if(absV < 0.25) return;
+
+    const direction = velocity > 0 ? 1 : -1;
+    let steps = Math.min(8, Math.max(1, Math.round(absV * 8)));
+    let delay = 38;
+
+    function momentumStep(){
+      if(steps <= 0) return;
+      stepMobile(direction);
+      steps -= 1;
+      delay *= 1.42;
+      mobileMomentumTimer = window.setTimeout(momentumStep, delay);
+    }
+
+    mobileMomentumTimer = window.setTimeout(momentumStep, delay);
+  }
 
   // ============================
   // OVERLAY
