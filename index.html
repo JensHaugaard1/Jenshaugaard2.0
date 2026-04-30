@@ -147,7 +147,7 @@
     }
 
     .caption-count{ text-align: left; white-space: nowrap; }
-    .caption-title{ text-align: right; white-space: nowrap; text-transform: uppercase; letter-spacing: -.2px; }
+    .caption-title{ text-align: right; white-space: nowrap; text-transform: uppercase; letter-spacing: -.2px; display: none;}
 
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
@@ -419,12 +419,16 @@
        and fades back in on navigation.
        ============================ */
      .page-content{
-      opacity: 0;
-      transform: translateY(12px);
+      opacity: 1;
+      transform: translateY(0);
       transition:
         opacity .45s cubic-bezier(.22,.61,.36,1),
         transform .55s cubic-bezier(.22,.61,.36,1);
       will-change: opacity, transform;
+    }
+    .page-content.is-entering{
+      opacity: 0;
+      transform: translateY(12px);
     }
     .page-content.is-ready{
       opacity: 1;
@@ -1128,11 +1132,12 @@
      Always fire — regardless of preloader state.
   ========================= */
   function revealPageContent(){
-    const pt = document.getElementById('pageTransition');
-    if(!pt) return;
-    if(pt.classList.contains('is-ready')) return;
-    if(pt.classList.contains('is-leaving')) return;
-    pt.classList.add('is-ready');
+    const pageContent = document.getElementById('pageContent');
+    if(!pageContent) return;
+    if(pageContent.classList.contains('is-ready')) return;
+    if(pageContent.classList.contains('is-leaving')) return;
+    pageContent.classList.remove('is-entering');
+    pageContent.classList.add('is-ready');
   }
 
   // If preloader is skipped → reveal immediately. Otherwise, hidePreloader will
@@ -1259,7 +1264,7 @@
     // NAV LINK PAGE TRANSITION
     // Intercept clicks on FEED / INDEX so we can fade-out before navigating.
     // ============================
-    const pageTransition = document.getElementById('pageTransition');
+    const pageContent = document.getElementById('pageContent');
     const navLinks = document.querySelectorAll('.top-nav a');
     navLinks.forEach(link => {
       link.addEventListener('click', (e) => {
@@ -1272,9 +1277,9 @@
         if(currentPath === targetPath) return;
 
         e.preventDefault();
-        if(pageTransition){
-          pageTransition.classList.remove('is-ready');
-          pageTransition.classList.add('is-leaving');
+        if(pageContent){
+          pageContent.classList.remove('is-ready', 'is-entering');
+          pageContent.classList.add('is-leaving');
         }
         setTimeout(() => {
           window.location.assign(href);
@@ -1284,9 +1289,9 @@
 
     // Restore on browser back/forward (bfcache)
     window.addEventListener('pageshow', (e) => {
-      if(e.persisted && pageTransition){
-        pageTransition.classList.remove('is-leaving');
-        pageTransition.classList.add('is-ready');
+      if(e.persisted && pageContent){
+        pageContent.classList.remove('is-leaving', 'is-entering');
+        pageContent.classList.add('is-ready');
       }
     });
 
