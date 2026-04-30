@@ -146,7 +146,7 @@
       height: var(--row-h);
       padding: 0 0 0 16px;
       cursor: default;
-      transition: opacity 0.03s ease, color 0.03s ease;
+      transition: none;
       color: var(--fade-color);
     }
 
@@ -158,14 +158,14 @@
       transform: translateY(-50%);
       opacity: 0;
       color: var(--focus-color);
-      transition: opacity 0.03s ease;
+      transition: none;
     }
 
     .row .col{
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      transition: color 0.03s ease, opacity 0.03s ease;
+      transition: none;
     }
 
     .row .col-job,
@@ -176,7 +176,14 @@
     }
 
     .row.is-focus{ color: var(--focus-color); }
+    .row.is-focus,
+    .row.is-focus .col{
+      transition: color 0.14s ease, opacity 0.14s ease;
+    }
     .row.is-focus::before{ opacity: 1; }
+    .row.is-focus::before{
+      transition: opacity 0s ease;
+    }
 
     .row.is-focus .col-job,
     .row.is-focus .col-client,
@@ -184,6 +191,7 @@
     .row.is-focus .col-year{
       color: var(--focus-color);
     }
+
 
     .row:not(.is-focus) .col-client,
     .row:not(.is-focus) .col-num,
@@ -247,12 +255,13 @@
         width: 100%;
         height: 100svh;
         max-height: 100svh;
-        overflow-y: auto;
+        overflow-y: hidden;
         overflow-x: hidden;
         padding: calc(56px + var(--focus-offset)) var(--pad-x) calc(100svh - 56px - var(--focus-offset) - var(--row-h));
        /* -webkit-overflow-scrolling: touch; */
         overscroll-behavior: none;
         scroll-behavior: auto;
+        touch-action: none;
         scrollbar-width: none;
         z-index: 3;
 
@@ -295,6 +304,11 @@
         transition: none;
       }
 
+      .row.is-focus,
+.row.is-focus .col{
+  transition: color 0.05s ease, opacity 0.05s ease;
+}
+
       .row .col-year{
         text-align: right;
         justify-self: end;
@@ -305,7 +319,7 @@
          columns 2-4 (NUM, CLIENT, YEAR) of the row grid. */
       .hero{
         position: fixed;
-        top: calc(48px + var(--focus-offset) + var(--row-h) + 24px);
+        top: calc(40px + var(--focus-offset) + var(--row-h) + 24px);
         left: var(--pad-x);    /* fallback before JS runs */
         right: auto;
         transform: none;
@@ -584,6 +598,37 @@
   let cursorY = -1;
   let isMobile = false;
 
+  let mobileStepIndex = 0;
+  let mobileTouchStartY = null;
+  let mobileWheelAccum = 0;
+  let mobileStepLock = false;
+
+  function getMobileMaxIndex(){
+    return Math.max(0, images.length - 1);
+  }
+
+  function setMobileStepIndex(idx){
+    if(!isMobile || !rows.length) return;
+    const rowH = rows[0].getBoundingClientRect().height;
+    if(rowH <= 0) return;
+
+    mobileStepIndex = Math.max(0, Math.min(getMobileMaxIndex(), idx));
+    listTrack.style.transform = `translate3d(0, ${-mobileStepIndex * rowH}px, 0)`;
+    setFocus(mobileStepIndex);
+    alignHeroToGrid();
+  }
+
+  function stepMobile(delta){
+    if(!isMobile || mobileStepLock) return;
+    if(delta === 0) return;
+    const next = mobileStepIndex + (delta > 0 ? 1 : -1);
+    setMobileStepIndex(next);
+    mobileStepLock = true;
+    window.setTimeout(() => {
+      mobileStepLock = false;
+    }, 45);
+  }
+
   function pad(n, w=3){
     const s = String(n);
     return s.length >= w ? s : '0'.repeat(w - s.length) + s;
@@ -597,8 +642,13 @@
     if(idx === currentFocus) return;
     if(idx < 0 || idx >= images.length) return;
 
-    if(rows[currentFocus]) rows[currentFocus].classList.remove('is-focus');
-    rows[idx].classList.add('is-focus');
+    if(rows[currentFocus]){
+      rows[currentFocus].classList.remove('is-focus');
+    }
+
+    if(rows[idx]){
+      rows[idx].classList.add('is-focus');
+    }
 
     heroImg.src = images[idx].src;
     heroImg.alt = images[idx].title || '';
@@ -642,7 +692,10 @@
     });
     listTrack.appendChild(frag);
     rows = Array.from(listTrack.querySelectorAll('.row'));
-
+    listTrack.style.transform = '';
+    if(isMobile){
+      setMobileStepIndex(currentFocus >= 0 ? currentFocus : 0);
+    }
     setFocus(0);
   }
 
@@ -739,6 +792,8 @@ function tickScroll(){
 }
 
 listWrap.addEventListener('scroll', () => {
+  if(isMobile) return;
+
   isScrolling = true;
   // Stop the rAF loop ~150ms after scroll stops
   clearTimeout(scrollIdleTimer);
@@ -749,15 +804,48 @@ listWrap.addEventListener('scroll', () => {
   }
 }, { passive: true });
 
+listWrap.addEventListener('touchstart', (e) => {
+  if(!isMobile) return;
+  mobileTouchStartY = e.touches[0].clientY;
+}, { passive: false });
+
+listWrap.addEventListener('touchmove', (e) => {
+  if(!isMobile || mobileTouchStartY === null) return;
+  e.preventDefault();
+
+  const y = e.touches[0].clientY;
+  const diff = mobileTouchStartY - y;
+  const threshold = 3.5;
+
+  if(Math.abs(diff) >= threshold){
+    stepMobile(diff);
+    mobileTouchStartY = y;
+  }
+}, { passive: false });
+
+listWrap.addEventListener('touchend', () => {
+  mobileTouchStartY = null;
+}, { passive: true });
+
+listWrap.addEventListener('wheel', (e) => {
+  if(!isMobile) return;
+  e.preventDefault();
+
+  mobileWheelAccum += e.deltaY;
+  const threshold = 5;
+
+  if(Math.abs(mobileWheelAccum) >= threshold){
+    stepMobile(mobileWheelAccum);
+    mobileWheelAccum = 0;
+  }
+}, { passive: false });
+
   // ============================
   // MOBILE — top-most visible row is focused
   // ============================
  function updateFocusFromMobileScroll(){
   if(!isMobile || !rows.length) return;
-  const rowH = rows[0].getBoundingClientRect().height;
-  if(rowH <= 0) return;
-  const idx = Math.round(listWrap.scrollTop / rowH);
-  setFocus(Math.max(0, Math.min(rows.length - 1, idx)));
+  setMobileStepIndex(mobileStepIndex);
 }
 
   // ============================
@@ -804,8 +892,9 @@ listWrap.addEventListener('scroll', () => {
         // Mobile/desktop boundary crossed — rebuild to apply correct layout
         build();
       } else if(isMobile){
-        updateFocusFromMobileScroll();
+        setMobileStepIndex(mobileStepIndex);
       } else {
+        listTrack.style.transform = '';
         updateFocusFromCursor();
       }
       alignHeroToGrid();
@@ -815,7 +904,7 @@ listWrap.addEventListener('scroll', () => {
   document.addEventListener('DOMContentLoaded', () => {
     build();
     preload();
-    if(isMobile) requestAnimationFrame(updateFocusFromMobileScroll);
+    if(isMobile) requestAnimationFrame(() => setMobileStepIndex(0));
     requestAnimationFrame(alignHeroToGrid);
 
     // ============================
