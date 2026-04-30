@@ -667,8 +667,29 @@ let mobileMomentumTimer = null;
 
     currentFocus = idx;
 
-    if(isMobile && 'vibrate' in navigator){
-      navigator.vibrate(4);
+    // HAPTIC (Android + iOS fallback hack)
+    if(isMobile){
+      if('vibrate' in navigator){
+        navigator.vibrate(4);
+      } else {
+        // iOS fallback using label/input hack
+        if(!window.__iosHapticLabel){
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.id = '__haptic__';
+          input.style.display = 'none';
+          document.body.appendChild(input);
+
+          const label = document.createElement('label');
+          label.htmlFor = '__haptic__';
+          label.style.display = 'none';
+          document.body.appendChild(label);
+
+          window.__iosHapticLabel = label;
+        }
+
+        window.__iosHapticLabel.click();
+      }
     }
   }
 
@@ -845,7 +866,7 @@ listWrap.addEventListener('touchmove', (e) => {
   mobileDragAccum += frameDiff;
 
   if(rowH > 0){
-    const stepDistance = Math.max(14, rowH * 0.82);
+    const stepDistance = Math.max(18, rowH * 0.96);
 
     if(Math.abs(mobileDragAccum) >= stepDistance){
       const direction = mobileDragAccum > 0 ? 1 : -1;
