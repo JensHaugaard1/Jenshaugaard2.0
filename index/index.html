@@ -530,7 +530,7 @@
 
     <div class="overlay-center">
       <div><a href="tel:+4553648444">(+45) 53 64 84 44</a></div>
-      <div><a href="mailto:hello@jenshaugaard.com">HELLO(AT)JENSHAUGAARD.COM</a></div>
+      <div><a href="mailto:hello@jenshaugaard.com" id="copyEmail" data-email="hello@jenshaugaard.com">HELLO(AT)JENSHAUGAARD.COM</a></div>
       <div><a href="https://www.instagram.com/jenshaugaaard" target="_blank" rel="noopener">JENSHAUGAAARD</a></div>
     </div>
 
@@ -593,6 +593,8 @@
   const heroImg = $('#heroImg');
   const overlay = $('#overlay');
   const navInfo = $('#navInfo');
+  const copyEmail = $('#copyEmail');
+  let copyEmailTimer = null;
 
   let currentFocus = -1;
   let rows = [];
@@ -991,6 +993,41 @@ listWrap.addEventListener('wheel', (e) => {
   overlay.addEventListener('click', (e) => {
     if(e.target === overlay) setOverlay(false);
   });
+
+  if(copyEmail){
+    const originalEmailText = copyEmail.textContent;
+
+    copyEmail.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      const email = copyEmail.dataset.email || 'hello@jenshaugaard.com';
+
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(email);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = email;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+        }
+
+        copyEmail.textContent = 'COPIED TO CLIPBOARD';
+        clearTimeout(copyEmailTimer);
+        copyEmailTimer = setTimeout(() => {
+          copyEmail.textContent = originalEmailText;
+        }, 3000);
+      } catch(err){
+        window.location.href = copyEmail.href;
+      }
+    });
+  }
 
   document.addEventListener('keydown', (e) => {
     if(e.key === 'Escape' && overlay.classList.contains('active')){
