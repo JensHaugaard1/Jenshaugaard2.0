@@ -140,7 +140,7 @@
     .row{
       position: relative;
       display: grid;
-      grid-template-columns: 1fr 1fr 0.4fr 0.4fr;
+      grid-template-columns: 1fr 0.4fr 1fr 0.4fr;
       column-gap: var(--col-gap);
       align-items: center;
       height: var(--row-h);
@@ -842,11 +842,9 @@ listWrap.addEventListener('touchmove', (e) => {
   mobileDragAccum += frameDiff;
 
   if(rowH > 0){
-    const firstStepDistance = Math.max(5, rowH * 0.28);
-    const stepDistance = Math.max(13, rowH * 0.68);
-    const activeStepDistance = mobileHasMovedDuringGesture ? stepDistance : firstStepDistance;
+    const stepDistance = Math.max(18, rowH * 1.09);
 
-    while(Math.abs(mobileDragAccum) >= activeStepDistance){
+    if(Math.abs(mobileDragAccum) >= stepDistance){
       const direction = mobileDragAccum > 0 ? 1 : -1;
       moveMobileStep(direction);
       mobileDragAccum -= direction * stepDistance;
@@ -900,18 +898,18 @@ listWrap.addEventListener('wheel', (e) => {
     if(!isMobile || !rows.length) return;
     clearTimeout(mobileMomentumTimer);
 
-    const absV = Math.abs(velocity);
-    if(absV < 0.42) return;
+    const absV = Math.abs(velocity) * 0.75;
+    if(absV < 0.55) return;
 
     const direction = velocity > 0 ? 1 : -1;
-    let steps = Math.min(7, Math.max(1, Math.round(absV * 5.5)));
-    let delay = 52;
+    let steps = Math.min(4, Math.max(1, Math.floor(absV * 3.2)));
+    let delay = 70;
 
     function momentumStep(){
       if(steps <= 0) return;
       moveMobileStep(direction);
       steps -= 1;
-      delay *= 1.36;
+      delay *= 1.55;
       mobileMomentumTimer = window.setTimeout(momentumStep, delay);
     }
 
