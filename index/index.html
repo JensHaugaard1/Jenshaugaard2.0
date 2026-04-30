@@ -285,7 +285,6 @@
         flex: initial;
         width: auto;
         transition: none;
-        will-change: transform;
       }
 
       .row{
@@ -308,7 +307,7 @@
 
       .row.is-focus,
 .row.is-focus .col{
-  transition: color 0.07s ease, opacity 0.1s ease;
+  transition: color 0.05s ease, opacity 0.08s ease;
 }
 
       .row .col-year{
@@ -639,7 +638,7 @@ let mobileMomentumTimer = null;
     mobileStepLock = true;
     window.setTimeout(() => {
       mobileStepLock = false;
-    }, 45);
+    }, 28);
   }
 
   function pad(n, w=3){
@@ -842,7 +841,7 @@ listWrap.addEventListener('touchmove', (e) => {
   mobileDragAccum += frameDiff;
 
   if(rowH > 0){
-    const stepDistance = Math.max(18, rowH * 1.09);
+    const stepDistance = Math.max(14, rowH * 0.82);
 
     if(Math.abs(mobileDragAccum) >= stepDistance){
       const direction = mobileDragAccum > 0 ? 1 : -1;
@@ -898,18 +897,18 @@ listWrap.addEventListener('wheel', (e) => {
     if(!isMobile || !rows.length) return;
     clearTimeout(mobileMomentumTimer);
 
-    const absV = Math.abs(velocity) * 0.75;
-    if(absV < 0.55) return;
+    const absV = Math.abs(velocity) * 0.95;
+    if(absV < 0.48) return;
 
     const direction = velocity > 0 ? 1 : -1;
     let steps = Math.min(4, Math.max(1, Math.floor(absV * 3.2)));
-    let delay = 70;
+    let delay = 54;
 
     function momentumStep(){
       if(steps <= 0) return;
       moveMobileStep(direction);
       steps -= 1;
-      delay *= 1.55;
+      delay *= 1.45;
       mobileMomentumTimer = window.setTimeout(momentumStep, delay);
     }
 
