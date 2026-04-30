@@ -614,21 +614,28 @@ let mobileMomentumTimer = null;
     return Math.max(0, images.length - 1);
   }
 
-  function setMobileStepIndex(idx){
+  function setMobileStepIndex(idx, shouldHaptic = false){
     if(!isMobile || !rows.length) return;
     const rowH = rows[0].getBoundingClientRect().height;
     if(rowH <= 0) return;
 
-    mobileStepIndex = Math.max(0, Math.min(getMobileMaxIndex(), idx));
+    const nextIndex = Math.max(0, Math.min(getMobileMaxIndex(), idx));
+    const didChange = nextIndex !== mobileStepIndex;
+
+    mobileStepIndex = nextIndex;
     listTrack.style.transform = `translate3d(0, ${-mobileStepIndex * rowH}px, 0)`;
-    setFocus(mobileStepIndex);
+    setFocus(mobileStepIndex, false);
     alignHeroToGrid();
+
+    if(shouldHaptic && didChange){
+      triggerHaptic();
+    }
   }
 
   function moveMobileStep(direction){
     if(!isMobile || !rows.length) return;
     if(direction === 0) return;
-    setMobileStepIndex(mobileStepIndex + (direction > 0 ? 1 : -1));
+    setMobileStepIndex(mobileStepIndex + (direction > 0 ? 1 : -1), true);
   }
 
   function stepMobile(delta){
@@ -693,10 +700,10 @@ let mobileMomentumTimer = null;
     if(hapticLabel) hapticLabel.click();
   }
 
-  function setFocus(idx){
+  function setFocus(idx, allowHaptic = true){
     if(idx === currentFocus) return;
     if(idx < 0 || idx >= images.length) return;
-    const shouldTriggerHaptic = currentFocus !== -1;
+    const shouldTriggerHaptic = allowHaptic && currentFocus !== -1;
 
     if(rows[currentFocus]){
       rows[currentFocus].classList.remove('is-focus');
