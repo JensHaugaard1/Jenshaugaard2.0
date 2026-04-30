@@ -669,56 +669,49 @@ let mobileMomentumTimer = null;
 
  // Pre-built pool of hidden <input switch> + label pairs.
 // Toggling these triggers the iOS system haptic feedback on iOS 17.4+.
-// ============================
-// HAPTIC FEEDBACK
-// Android → navigator.vibrate
-// iOS Safari → <input type="checkbox" switch> + label.click() trick
-// (Documented via WebKit blog & web-haptics library)
-// ============================
-const HAPTIC_DURATION_MS = 6;
-const HAPTIC_MIN_INTERVAL = 100; // iOS rate-limits below this
+let hapticPool = [];
+let hapticPoolIdx = 0;
+const HAPTIC_POOL_SIZE = 8;
 
-let lastHapticTs = 0;
+function initHapticPool(){
+  if(hapticPool.length > 0) return;
+  if(!document.body) return;
 
-function canVibrate(){
-  return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
-}
+  const container = document.createElement('div');
+  container.setAttribute('aria-hidden', 'true');
+  container.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden;pointer-events:none;';
 
-function triggerIOSHapticFallback(){
-  // Per WebKit/web-haptics: create switch+label fresh each call,
-  // click the LABEL (not the input), then remove.
-  try{
+  for(let i = 0; i < HAPTIC_POOL_SIZE; i++){
+    const id = `__haptic_pool_${i}`;
     const input = document.createElement('input');
     input.type = 'checkbox';
+    input.id = id;
     input.setAttribute('switch', '');
-    input.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
+    input.tabIndex = -1;
 
     const label = document.createElement('label');
-    label.appendChild(input);
-    label.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
+    label.htmlFor = id;
+    label.tabIndex = -1;
 
-    document.body.appendChild(label);
-    label.click();
+    container.appendChild(input);
+    container.appendChild(label);
+    hapticPool.push(label);
+  }
 
-    // Remove next frame so the click event fully dispatches
-    requestAnimationFrame(() => {
-      try{ label.remove(); } catch(_){}
-    });
-  } catch(_){}
+  document.body.appendChild(container);
 }
 
-function triggerHaptic(duration = HAPTIC_DURATION_MS){
-  if(!isMobile) return;
-  // Throttle to avoid overwhelming the system (iOS rate-limits)
-  const now = performance.now();
-  if(now - lastHapticTs < HAPTIC_MIN_INTERVAL) return;
-  lastHapticTs = now;
+let lastIOSHapticTs = 0;
+const IOS_HAPTIC_MIN_INTERVAL = 35; // ms — iOS rate-limits faster than this
 
-  if(canVibrate()){
-    navigator.vibrate(duration);
-  } else {
-    triggerIOSHapticFallback();
-  }
+function triggerIOSHapticFallback(){
+  if(hapticPool.length === 0) return;
+  const now = performance.now();
+  if(now - lastIOSHapticTs < IOS_HAPTIC_MIN_INTERVAL) return;
+  lastIOSHapticTs = now;
+  const label = hapticPool[hapticPoolIdx % hapticPool.length];
+  hapticPoolIdx++;
+  try{ label.click(); } catch(_){}
 }
 
   function triggerHaptic(duration = HAPTIC_DURATION_MS){
@@ -994,17 +987,12 @@ listWrap.addEventListener('wheel', (e) => {
     let delay = 54;
 
     function momentumStep(){
-  if(steps <= 0) return;
-  moveMobileStep(direction);
-  // Only Android can trigger vibrate from setTimeout; iOS Safari requires
-  // a direct user gesture so momentum has no haptic on iOS (drag still does)
-  if(canVibrate()){
-    triggerHaptic();
-  }
-  steps -= 1;
-  delay *= 1.45;
-  mobileMomentumTimer = window.setTimeout(momentumStep, delay);
-}
+      if(steps <= 0) return;
+      moveMobileStep(direction);
+      steps -= 1;
+      delay *= 1.45;
+      mobileMomentumTimer = window.setTimeout(momentumStep, delay);
+    }
 
     mobileMomentumTimer = window.setTimeout(momentumStep, delay);
   }
@@ -1099,6 +1087,7 @@ listWrap.addEventListener('wheel', (e) => {
 
   document.addEventListener('DOMContentLoaded', () => {
   detectMobile();
+  initHapticPool();
   build();
     preload();
     if(isMobile) requestAnimationFrame(() => setMobileStepIndex(0));
