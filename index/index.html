@@ -250,26 +250,26 @@
         overflow-y: auto;
         overflow-x: hidden;
         padding: calc(56px + var(--focus-offset)) var(--pad-x) calc(100svh - 56px - var(--focus-offset) - var(--row-h));
-        -webkit-overflow-scrolling: touch;
+       /* -webkit-overflow-scrolling: touch; */
+        overscroll-behavior: none;
+        scroll-behavior: auto;
         scrollbar-width: none;
         z-index: 3;
 
         display: block;
 
         -webkit-mask-image: linear-gradient(
-          to bottom,
-          transparent 56px,
-          rgba(0,0,0,0.15) calc(56px + 8px),
-          rgba(0,0,0,1) calc(56px + var(--focus-offset)),
-          rgba(0,0,0,1) 100%
-        );
-                mask-image: linear-gradient(
-          to bottom,
-          transparent 56px,
-          rgba(0,0,0,0.15) calc(56px + 8px),
-          rgba(0,0,0,1) calc(56px + var(--focus-offset)),
-          rgba(0,0,0,1) 100%
-        );
+  to bottom,
+  transparent 56px,
+  rgba(0,0,0,1) calc(56px + var(--row-h) * 5),
+  rgba(0,0,0,1) 100%
+);
+        mask-image: linear-gradient(
+  to bottom,
+  transparent 56px,
+  rgba(0,0,0,1) calc(56px + var(--row-h) * 5),
+  rgba(0,0,0,1) 100%
+);
       }
 
       .list-track{
@@ -305,7 +305,7 @@
          columns 2-4 (NUM, CLIENT, YEAR) of the row grid. */
       .hero{
         position: fixed;
-        top: calc(56px + var(--focus-offset) + var(--row-h) + 24px);
+        top: calc(48px + var(--focus-offset) + var(--row-h) + 24px);
         left: var(--pad-x);    /* fallback before JS runs */
         right: auto;
         transform: none;
@@ -409,7 +409,7 @@
       .overlay-right{
         position: absolute;
         left: 18px;
-        bottom: 48px;
+        bottom: 72px;
         line-height: 1.1;
         text-align: left;
         font-size: 12px;
@@ -464,28 +464,26 @@
     }
 
     /* ============================
-       PAGE TRANSITION
-       Use a separate full-screen overlay that fades in/out.
-       ============================ */
-    #pageTransition{
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100svh;
-      background: #fff;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      z-index: 200;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity .25s cubic-bezier(.22,.61,.36,1);
-    }
-    #pageTransition.is-ready{
+   PAGE TRANSITION
+   Animates only main content (.page-content) — nav and logo stay static.
+   Slide-up + fade-in on enter; fade-out (no slide) on leave.
+   ============================ */
+    .page-content{
       opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity .45s cubic-bezier(.22,.61,.36,1),
+        transform .55s cubic-bezier(.22,.61,.36,1);
+      will-change: opacity, transform;
     }
-    #pageTransition.is-leaving{
+    .page-content.is-ready{
       opacity: 1;
-      transition: opacity .22s cubic-bezier(.55,.08,.68,.53);
+      transform: translateY(0);
+    }
+    .page-content.is-leaving{
+      opacity: 0;
+      transform: translateY(0);
+      transition: opacity .25s cubic-bezier(.55,.08,.68,.53);
     }
   </style>
 </head>
@@ -537,9 +535,7 @@
 </div>
 
 <!-- Page transition overlay -->
-<div id="pageTransition" aria-hidden="true"></div>
-
-<main>
+<main class="page-content" id="pageContent">
   <div class="list-wrap" id="listWrap" role="listbox" aria-label="Projects">
     <div class="list-track" id="listTrack"></div>
   </div>
@@ -726,18 +722,32 @@
   }, { passive: true });
 
   let scrollRaf = null;
-  listWrap.addEventListener('scroll', () => {
-    if(scrollRaf) return;
-    scrollRaf = requestAnimationFrame(() => {
-      scrollRaf = null;
-      if(isMobile){
-        updateFocusFromMobileScroll();
-        alignHeroToGrid();
-      } else {
-        updateFocusFromCursor();
-      }
-    });
-  }, { passive: true });
+let isScrolling = false;
+let scrollIdleTimer = null;
+
+function tickScroll(){
+  if(isMobile){
+    updateFocusFromMobileScroll();
+  } else {
+    updateFocusFromCursor();
+  }
+  if(isScrolling){
+    scrollRaf = requestAnimationFrame(tickScroll);
+  } else {
+    scrollRaf = null;
+  }
+}
+
+listWrap.addEventListener('scroll', () => {
+  isScrolling = true;
+  // Stop the rAF loop ~150ms after scroll stops
+  clearTimeout(scrollIdleTimer);
+  scrollIdleTimer = setTimeout(() => { isScrolling = false; }, 150);
+
+  if(!scrollRaf){
+    scrollRaf = requestAnimationFrame(tickScroll);
+  }
+}, { passive: true });
 
   // ============================
   // MOBILE — top-most visible row is focused
@@ -746,7 +756,6 @@
   if(!isMobile || !rows.length) return;
   const rowH = rows[0].getBoundingClientRect().height;
   if(rowH <= 0) return;
-  // Direct math: scrollTop / rowHeight = which row is at the focus line
   const idx = Math.round(listWrap.scrollTop / rowH);
   setFocus(Math.max(0, Math.min(rows.length - 1, idx)));
 }
@@ -810,46 +819,51 @@
     requestAnimationFrame(alignHeroToGrid);
 
     // ============================
-    // PAGE TRANSITION
-    // Fade out the white overlay once content is mounted.
-    // ============================
-    const pageTransition = document.getElementById('pageTransition');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if(pageTransition) pageTransition.classList.add('is-ready');
-      });
-    });
+// PAGE TRANSITION — slide-up + fade in. Only affects .page-content,
+// nav and logo are unaffected.
+// ============================
+const pageContent = document.getElementById('pageContent');
 
-    // Intercept navigation clicks (FEED / INDEX) for fade-in
-    const navLinks = document.querySelectorAll('.top-nav a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
-        if(!href || href.startsWith('#')) return;
-        if(link.target === '_blank') return;
-        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        const targetPath = href.split('/').pop();
-        if(currentPath === targetPath) return;
+// Reveal on load (next frame so initial transform is committed)
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    if(pageContent) pageContent.classList.add('is-ready');
+  });
+});
 
-        e.preventDefault();
-        if(pageTransition){
-          pageTransition.classList.remove('is-ready');
-          pageTransition.classList.add('is-leaving');
-        }
-        setTimeout(() => {
-          window.location.assign(href);
-        }, 350);
-      });
-    });
+// Intercept navigation clicks for fade-out
+const navLinks = document.querySelectorAll('.top-nav a');
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if(!href || href.startsWith('#')) return;
+    if(link.target === '_blank') return;
+    if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const norm = p => (p.replace(/\/$/, '') || '/').toLowerCase();
+    const currentPath = norm(window.location.pathname);
+    const targetPath = norm(new URL(href, window.location.href).pathname);
+    if(currentPath === targetPath) return;
 
-    // Restore on browser back/forward (bfcache)
-    window.addEventListener('pageshow', (e) => {
-      if(e.persisted && pageTransition){
-        pageTransition.classList.remove('is-leaving');
-        pageTransition.classList.add('is-ready');
-      }
-    });
+    e.preventDefault();
+    if(pageContent){
+      pageContent.classList.remove('is-ready');
+      pageContent.classList.add('is-leaving');
+    }
+    // Navigate after fade-out begins (overlap creates crossfade illusion
+    // because the next page's slide-up starts while this one is fading)
+    setTimeout(() => {
+      window.location.assign(href);
+    }, 180);
+  });
+});
+
+// Restore on browser back/forward (bfcache)
+window.addEventListener('pageshow', (e) => {
+  if(e.persisted && pageContent){
+    pageContent.classList.remove('is-leaving');
+    pageContent.classList.add('is-ready');
+  }
+});
   });
 
 })();
