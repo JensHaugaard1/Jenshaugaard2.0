@@ -831,7 +831,7 @@ listWrap.addEventListener('touchmove', (e) => {
 
   mobileVelocity = frameDiff / frameTime;
 
-  const threshold = 2.5;
+  const threshold = 1;
 
   if(Math.abs(diff) >= threshold){
     stepMobile(diff);
@@ -882,7 +882,7 @@ listWrap.addEventListener('wheel', (e) => {
     if(!isMobile || !rows.length) return;
     clearTimeout(mobileMomentumTimer);
 
-    const absV = Math.abs(velocity);
+    const absV = Math.abs(velocity) * 2;
     if(absV < 0.25) return;
 
     const direction = velocity > 0 ? 1 : -1;
