@@ -831,7 +831,7 @@ listWrap.addEventListener('touchmove', (e) => {
 
   mobileVelocity = frameDiff / frameTime;
 
-  const threshold = 1;
+  const threshold = 3;
 
   if(Math.abs(diff) >= threshold){
     stepMobile(diff);
