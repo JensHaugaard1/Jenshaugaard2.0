@@ -666,6 +666,10 @@ let mobileMomentumTimer = null;
     heroImg.alt = images[idx].title || '';
 
     currentFocus = idx;
+
+    if(isMobile && 'vibrate' in navigator){
+      navigator.vibrate(4);
+    }
   }
 
   function build(){
