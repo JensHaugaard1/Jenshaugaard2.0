@@ -650,9 +650,53 @@ let mobileMomentumTimer = null;
     isMobile = window.matchMedia('(max-width: 800px)').matches;
   }
 
+  // ============================
+  // HAPTIC FEEDBACK HELPERS
+  // ============================
+  const HAPTIC_ID = '__haptic__';
+  const HAPTIC_DURATION_MS = 4;
+  let hapticLabel = null;
+
+  function canVibrate(){
+    return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+  }
+
+  function mountHapticFallback(){
+    if(!isMobile || canVibrate() || hapticLabel) return;
+    if(!document.body) return;
+
+    const existing = document.getElementById(HAPTIC_ID);
+    if(existing) return;
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = HAPTIC_ID;
+    input.setAttribute('switch', '');
+    input.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:-9999px;top:-9999px;';
+    document.body.appendChild(input);
+
+    hapticLabel = document.createElement('label');
+    hapticLabel.htmlFor = HAPTIC_ID;
+    hapticLabel.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:-9999px;top:-9999px;';
+    document.body.appendChild(hapticLabel);
+  }
+
+  function triggerHaptic(duration = HAPTIC_DURATION_MS){
+    if(!isMobile) return;
+
+    if(canVibrate()){
+      navigator.vibrate(duration);
+      return;
+    }
+
+    if(!hapticLabel) mountHapticFallback();
+    if(hapticLabel) hapticLabel.click();
+  }
+
   function setFocus(idx){
     if(idx === currentFocus) return;
     if(idx < 0 || idx >= images.length) return;
+    const shouldTriggerHaptic = currentFocus !== -1;
 
     if(rows[currentFocus]){
       rows[currentFocus].classList.remove('is-focus');
@@ -667,29 +711,8 @@ let mobileMomentumTimer = null;
 
     currentFocus = idx;
 
-    // HAPTIC (Android + iOS fallback hack)
-    if(isMobile){
-      if('vibrate' in navigator){
-        navigator.vibrate(4);
-      } else {
-        // iOS fallback using label/input hack
-        if(!window.__iosHapticLabel){
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.id = '__haptic__';
-          input.style.display = 'none';
-          document.body.appendChild(input);
-
-          const label = document.createElement('label');
-          label.htmlFor = '__haptic__';
-          label.style.display = 'none';
-          document.body.appendChild(label);
-
-          window.__iosHapticLabel = label;
-        }
-
-        window.__iosHapticLabel.click();
-      }
+    if(shouldTriggerHaptic){
+      triggerHaptic();
     }
   }
 
@@ -994,6 +1017,8 @@ listWrap.addEventListener('wheel', (e) => {
   }, { passive: true });
 
   document.addEventListener('DOMContentLoaded', () => {
+    detectMobile();
+    mountHapticFallback();
     build();
     preload();
     if(isMobile) requestAnimationFrame(() => setMobileStepIndex(0));
