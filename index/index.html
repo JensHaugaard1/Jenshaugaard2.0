@@ -670,37 +670,45 @@ let mobileMomentumTimer = null;
     return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
   }
 
- let hapticAudioCtx = null;
+ // Pre-built pool of hidden <input switch> + label pairs.
+// Toggling these triggers the iOS system haptic feedback on iOS 17.4+.
+let hapticPool = [];
+let hapticPoolIdx = 0;
+const HAPTIC_POOL_SIZE = 8;
+
+function initHapticPool(){
+  if(hapticPool.length > 0) return;
+  if(!document.body) return;
+
+  const container = document.createElement('div');
+  container.setAttribute('aria-hidden', 'true');
+  container.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden;pointer-events:none;';
+
+  for(let i = 0; i < HAPTIC_POOL_SIZE; i++){
+    const id = `__haptic_pool_${i}`;
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = id;
+    input.setAttribute('switch', '');
+    input.tabIndex = -1;
+
+    const label = document.createElement('label');
+    label.htmlFor = id;
+    label.tabIndex = -1;
+
+    container.appendChild(input);
+    container.appendChild(label);
+    hapticPool.push(label);
+  }
+
+  document.body.appendChild(container);
+}
 
 function triggerIOSHapticFallback(){
-  // Initialize audio context lazily on first use (user gesture required)
-  try{
-    if(!hapticAudioCtx){
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if(!Ctx) return;
-      hapticAudioCtx = new Ctx();
-    }
-
-    if(hapticAudioCtx.state === 'suspended'){
-      hapticAudioCtx.resume();
-    }
-
-    const now = hapticAudioCtx.currentTime;
-    const osc = hapticAudioCtx.createOscillator();
-    const gain = hapticAudioCtx.createGain();
-
-    osc.frequency.value = 30;          // sub-audible thump
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.05, now + 0.001);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.015);
-
-    osc.connect(gain);
-    gain.connect(hapticAudioCtx.destination);
-    osc.start(now);
-    osc.stop(now + 0.02);
-  } catch(_){
-    // Fail silently
-  }
+  if(hapticPool.length === 0) return;
+  const label = hapticPool[hapticPoolIdx % hapticPool.length];
+  hapticPoolIdx++;
+  try{ label.click(); } catch(_){}
 }
 
   function triggerHaptic(duration = HAPTIC_DURATION_MS){
@@ -886,12 +894,6 @@ listWrap.addEventListener('scroll', () => {
 
 listWrap.addEventListener('touchstart', (e) => {
   if(!isMobile) return;
-  if(!hapticAudioCtx){
-    try{
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if(Ctx) hapticAudioCtx = new Ctx();
-    } catch(_){}
-  }
   clearTimeout(mobileMomentumTimer);
   mobileTouchStartY = e.touches[0].clientY;
   mobileLastTouchY = mobileTouchStartY;
@@ -1078,8 +1080,9 @@ listWrap.addEventListener('wheel', (e) => {
   }, { passive: true });
 
   document.addEventListener('DOMContentLoaded', () => {
-    detectMobile();
-    build();
+  detectMobile();
+  initHapticPool();
+  build();
     preload();
     if(isMobile) requestAnimationFrame(() => setMobileStepIndex(0));
     requestAnimationFrame(alignHeroToGrid);
