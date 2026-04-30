@@ -670,31 +670,38 @@ let mobileMomentumTimer = null;
     return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
   }
 
-  function triggerIOSHapticFallback(){
-    if(!document.body) return;
+ let hapticAudioCtx = null;
 
-    const id = `__haptic_${Date.now()}_${Math.random()}`;
+function triggerIOSHapticFallback(){
+  // Initialize audio context lazily on first use (user gesture required)
+  try{
+    if(!hapticAudioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      hapticAudioCtx = new Ctx();
+    }
 
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = id;
-    input.setAttribute('switch', '');
-    input.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+    if(hapticAudioCtx.state === 'suspended'){
+      hapticAudioCtx.resume();
+    }
 
-    const label = document.createElement('label');
-    label.htmlFor = id;
-    label.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+    const now = hapticAudioCtx.currentTime;
+    const osc = hapticAudioCtx.createOscillator();
+    const gain = hapticAudioCtx.createGain();
 
-    document.body.appendChild(input);
-    document.body.appendChild(label);
+    osc.frequency.value = 30;          // sub-audible thump
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.05, now + 0.001);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.015);
 
-    label.click();
-
-    setTimeout(() => {
-      label.remove();
-      input.remove();
-    }, 60);
+    osc.connect(gain);
+    gain.connect(hapticAudioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.02);
+  } catch(_){
+    // Fail silently
   }
+}
 
   function triggerHaptic(duration = HAPTIC_DURATION_MS){
     if(!isMobile) return;
@@ -879,6 +886,12 @@ listWrap.addEventListener('scroll', () => {
 
 listWrap.addEventListener('touchstart', (e) => {
   if(!isMobile) return;
+  if(!hapticAudioCtx){
+    try{
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(Ctx) hapticAudioCtx = new Ctx();
+    } catch(_){}
+  }
   clearTimeout(mobileMomentumTimer);
   mobileTouchStartY = e.touches[0].clientY;
   mobileLastTouchY = mobileTouchStartY;
