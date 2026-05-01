@@ -147,11 +147,12 @@
     }
 
     .caption-count{ text-align: left; white-space: nowrap; }
-    .caption-title{ text-align: right; white-space: nowrap; text-transform: uppercase; letter-spacing: -.2px; display: none;}
+    .caption-title{ text-align: right; white-space: nowrap; text-transform: uppercase; letter-spacing: -.2px;}
 
     @media (max-width:800px){
       :root{ --thumb-w:var(--thumb-w-sm); --hero-h:80svh; --thumb-scale: .75; }
       .caption{ font-size:11px; inset: auto 10px 68px 10px; }
+      .caption-title{ display: none; }
       .hero-layer{ width:100%; width: 95svw; max-width:100%; max-height:70svh; }
       .rail-wrap{ bottom: 8px !important;}
       .thumb img{ opacity: 1; filter: blur(0px); }
